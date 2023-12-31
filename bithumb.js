@@ -159,10 +159,15 @@ class Bithumb extends bithumbRest {
     await bithumb.loadMarkets()
     const msgHashes = bithumb.wsSymbols.map(s => 'trade' + ':' + s);
 
+    let trades = [];
     while (true) {
         try {
-            const trades = await bithumb.watchTradesForSymbols(bithumb.wsSymbols, msgHashes);
-            await db.writeTrades(bithumb.name.toLowerCase(), trades);
+            trades.push(...(await bithumb.watchTradesForSymbols(bithumb.wsSymbols, msgHashes)));
+            if (trades.length > 1000){
+                console.log('insert bithumb trades', trades.length);
+                await db.writeTrades(bithumb.name.toLowerCase(), trades);
+                trades = [];
+            }
         } catch (e) {
             console.error(e)
             await sleep(100)
