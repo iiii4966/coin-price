@@ -108,9 +108,6 @@ export class CandleAggregator {
 
             insertSymbolCount += 1;
         }
-
-        console.log(Object.values(this.candles['BTC_KRW']));
-
         await db.writeCandles(this.exchange, this.unit, insertCandles);
 
         console.log(`bithumb insert ${this.unit} candles:`, insertSymbolCount)
