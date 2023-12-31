@@ -42,4 +42,20 @@ export class QuestDB {
         }
         await client.flush();
     }
+
+    async writeCandles(exchange, candleUnit, candles) {
+        const client = await this.connect();
+        for (const candle of candles) {
+            client
+                .table(`${exchange}_candle_${candleUnit}`)
+                .symbol('symbol', candle.symbol)
+                .floatColumn('open', candle.open)
+                .floatColumn('close', candle.close)
+                .floatColumn('high', candle.high)
+                .floatColumn('low', candle.low)
+                .floatColumn('volume', candle.volume)
+                .at(candle.start, 'ms');
+        }
+        await client.flush();
+    }
 }

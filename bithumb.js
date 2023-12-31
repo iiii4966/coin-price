@@ -2,9 +2,11 @@ import {bithumb as bithumbRest} from 'ccxt';
 import {ArrayCache} from "./cache.js";
 import {QuestDB} from "./questdb.js";
 import {sleep} from "./utils.js";
+import {CandleAggregator} from "./aggregator.js";
 
 class Bithumb extends bithumbRest {
     wsSymbols = [];
+    msgHashes = [];
 
     describe() {
         return this.deepExtend(super.describe(), {
@@ -148,29 +150,33 @@ class Bithumb extends bithumbRest {
     async loadMarkets(reload = false, params = {}){
         await super.loadMarkets(reload, params)
         this.wsSymbols = this.symbols.map(s => s.replace('/', '_'))
+        this.msgHashes = this.wsSymbols.map(s => 'trade' + ':' + s);
+        console.log('load ws symbols:', this.wsSymbols.length);
         return this.marketsLoading;
     }
 }
 
-(async () => {
-    const db = new QuestDB()
+export const collect = async () => {
+    const db = new QuestDB();
 
     const bithumb = new Bithumb();
-    await bithumb.loadMarkets()
-    const msgHashes = bithumb.wsSymbols.map(s => 'trade' + ':' + s);
+    await bithumb.loadMarkets();
+    setInterval(async () => {await bithumb.loadMarkets(true)}, 1000 * 60 * 60);
 
-    let trades = [];
+    const minAggregator = new CandleAggregator(
+        {unit: '1m', exchange: bithumb.name.toLowerCase()}
+    );
+    setInterval(() => {minAggregator.persist(db)}, 1000 * 5);
+
     while (true) {
         try {
-            trades.push(...(await bithumb.watchTradesForSymbols(bithumb.wsSymbols, msgHashes)));
-            if (trades.length > 1000){
-                console.log('insert bithumb trades', trades.length);
-                await db.writeTrades(bithumb.name.toLowerCase(), trades);
-                trades = [];
+            const trades = await bithumb.watchTradesForSymbols(bithumb.wsSymbols, bithumb.msgHashes);
+            for (const trade of trades) {
+                minAggregator.aggregate(trade);
             }
         } catch (e) {
             console.error(e)
-            await sleep(100)
+            await sleep(100);
         }
     }
-}) ()
+}

@@ -14,51 +14,15 @@ const createCandleTables = async () => {
     for (const {sampleUnit} of Object.values(CANDLES)) {
         await client.query(
             `
-                CREATE TABLE IF NOT EXISTS bithumb_ohlcv_${sampleUnit} (
+                CREATE TABLE IF NOT EXISTS bithumb_candle_${sampleUnit} (
                   timestamp TIMESTAMP,
-                  symbol SYMBOL,
-                  candle SYMBOL,
+                  symbol SYMBOL INDEX,
                   open DOUBLE,
                   close DOUBLE,
                   high DOUBLE,
                   low DOUBLE,
                   volume DOUBLE
-                ) timestamp (timestamp) PARTITION BY DAY WAL;
-            `
-        )
-    }
-    await client.release()
-    await db.pool.end();
-}
-
-const createCandleTableV2 = async () => {
-    const db = await connectDB();
-    const client = await db.connect();
-    await client.query(
-        `
-            CREATE TABLE IF NOT EXISTS bithumb_ohlcv (
-              timestamp TIMESTAMP,
-              symbol SYMBOL,
-              candle SYMBOL,
-              open DOUBLE,
-              close DOUBLE,
-              high DOUBLE,
-              low DOUBLE,
-              volume DOUBLE
-            ) timestamp (timestamp) PARTITION BY DAY WAL;
-        `
-    )
-    await client.release()
-    await db.pool.end();
-}
-
-const dropCandleTables = async () => {
-    const db = await connectDB();
-    const client = await db.connect();
-    for (const {sampleUnit} of Object.values(CANDLES)) {
-        await client.query(
-            `
-                DROP TABLE bithumb_ohlcv_${sampleUnit}
+                ) timestamp(timestamp) PARTITION BY DAY WAL DEDUP UPSERT KEYS(timestamp, symbol);
             `
         )
     }
@@ -67,5 +31,5 @@ const dropCandleTables = async () => {
 }
 
 (async function () {
-    await dropCandleTables()
+    await createCandleTables()
 }()).catch(console.error)
