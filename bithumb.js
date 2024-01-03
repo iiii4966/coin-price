@@ -99,7 +99,7 @@ class Bithumb extends bithumbRest {
 
         let tradeCachedArray = this.safeValue(this.trades, marketId);
         if (tradeCachedArray === undefined) {
-            const limit = this.safeInteger(this.options, 'tradesLimit', 1000);
+            const limit = this.safeInteger(this.options, 'tradesLimit', 500);
             tradeCachedArray = new ArrayCache(limit);
             this.trades[marketId] = tradeCachedArray;
         }
@@ -133,6 +133,7 @@ class Bithumb extends bithumbRest {
         if (!this.valueIsDefined(msgHashes)) {
             msgHashes = symbols.map(s => 'trade' + ':' + s);
         }
+
         const request = {
             type : 'transaction',
             symbols,
@@ -162,12 +163,16 @@ export const collect = async () => {
 
     const bithumb = new Bithumb();
     await bithumb.loadMarkets();
-    setInterval(async () => {await bithumb.loadMarkets(true)}, 1000 * 60 * 60);
+    setInterval(() => {bithumb.loadMarkets(true).catch(console.error)}, 1000 * 60 * 60);
 
     const minAggregator = new CandleAggregator(
         {unit: '1m', exchange: bithumb.name.toLowerCase()}
     );
-    setInterval(() => {minAggregator.persist(db)}, 1000 * 5);
+    setInterval(() => {
+        if ((Math.floor(Date.now() / 1000) % 5) - 1 === 0) {
+            minAggregator.persist(db).catch(console.error)
+        }
+    }, 1000);
 
     while (true) {
         try {
