@@ -12,6 +12,7 @@
   "dependencies": {
     "@questdb/nodejs-client": "^2.1.0",
     "ccxt": "^4.1.97",
+    "dotenv": "^16.3.1",
     "pg": "^8.11.3"
   }
 }

@@ -1,7 +1,9 @@
 import {collect} from "../bithumb.js";
+import {configDotenv} from "dotenv";
 
 const bootstrap = async () => {
-    await collect()
+    const {parsed: config} = configDotenv()
+    await collect(config);
 }
 
 bootstrap().catch(console.error)

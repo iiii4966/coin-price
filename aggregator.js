@@ -95,7 +95,24 @@ export class CandleAggregator {
         this.setCandle(candle);
     }
 
-    async loadLatestCandles(db) {}
+    async loadLatestCandles(db) {
+        const candles = await db.loadLatestCandles(this.exchange, this.unit)
+        for (const {symbol, open, high, low, close, volume, timestamp} of candles) {
+            const tms = Number(timestamp)
+            const candle = {
+                start: tms,
+                end: tms + this.ms,
+                latestTradeTms: tms,
+                symbol,
+                open,
+                high,
+                low,
+                close,
+                volume
+            }
+            this.candles[symbol] = {[timestamp]: candle}
+        }
+    }
 
     async persist(db) {
         if (!this.candles) {

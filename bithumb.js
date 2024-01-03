@@ -3,6 +3,7 @@ import {ArrayCache} from "./cache.js";
 import {QuestDB} from "./questdb.js";
 import {sleep} from "./utils.js";
 import {CandleAggregator} from "./aggregator.js";
+import {PostgresDB} from "./postgresdb.js";
 
 class Bithumb extends bithumbRest {
     wsSymbols = [];
@@ -158,8 +159,9 @@ class Bithumb extends bithumbRest {
     }
 }
 
-export const collect = async () => {
-    const db = new QuestDB();
+export const collect = async (config) => {
+    const writer = new QuestDB();
+    const reader = new PostgresDB(config);
 
     const bithumb = new Bithumb();
     await bithumb.loadMarkets();
@@ -168,9 +170,10 @@ export const collect = async () => {
     const minAggregator = new CandleAggregator(
         {unit: '1m', exchange: bithumb.name.toLowerCase()}
     );
+    await minAggregator.loadLatestCandles(reader)
     setInterval(() => {
         if ((Math.floor(Date.now() / 1000) % 5) - 1 === 0) {
-            minAggregator.persist(db).catch(console.error)
+            minAggregator.persist(writer).catch(console.error)
         }
     }, 1000);
 
