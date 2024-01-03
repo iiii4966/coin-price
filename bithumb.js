@@ -10,6 +10,8 @@ class Bithumb extends bithumbRest {
 
     describe() {
         return this.deepExtend(super.describe(), {
+            'verbose': false,
+            'pro': true,
             'has': {
                 'ws': true,
                 'watchTradesForSymbols': true,
@@ -21,7 +23,7 @@ class Bithumb extends bithumbRest {
             },
             'options': {
                 newUpdates: true,
-                'tradesLimit': 1000,
+                'tradesLimit': 500,
             },
             'streaming': {
                 'keepAlive': 15000,
@@ -99,14 +101,13 @@ class Bithumb extends bithumbRest {
         if (tradeCachedArray === undefined) {
             const limit = this.safeInteger(this.options, 'tradesLimit', 1000);
             tradeCachedArray = new ArrayCache(limit);
+            this.trades[marketId] = tradeCachedArray;
         }
 
         for (const rawTrade of rawTrades) {
             const trade = this.parseTrade(rawTrade)
             tradeCachedArray.append(trade)
         }
-
-        this.trades[marketId] = tradeCachedArray;
 
         const messageHash = 'trade:' + marketId;
         client.resolve(tradeCachedArray, messageHash);

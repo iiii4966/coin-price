@@ -19,11 +19,20 @@ export class CandleAggregator {
         return getTimeRange(tms, this.ms)
     }
 
+    setLatestTms(symbol, candleStartTms) {
+        const latestTms = this.candleLatestTms[symbol]
+        if (!latestTms) {
+            this.candleLatestTms[symbol] = candleStartTms
+        } else if (latestTms < candleStartTms) {
+            this.candleLatestTms[symbol] = candleStartTms
+        }
+    }
+
     initCandle(start, end, symbol, price, amount) {
-        return {
+        const candle = {
             start,
             end,
-            latestUpdateTms: start,
+            latestTradeTms: start,
             symbol,
             open: price,
             close: price,
@@ -32,17 +41,19 @@ export class CandleAggregator {
             volume: amount,
             closed: false
         }
+        this.setLatestTms(symbol, start);
+        return candle
     }
 
     updateCandle(candle, tradeTms, price, amount) {
-        const {latestUpdateTms, high, low} = candle;
-        if (latestUpdateTms <= tradeTms) {
+        const {latestTradeTms, high, low} = candle;
+        if (latestTradeTms <= tradeTms) {
             candle.close = price;
         }
         candle.high = Math.max(high, price);
         candle.low = Math.min(low, price);
         candle.volume += amount;
-        candle.latestUpdateTms = tradeTms;
+        candle.latestTradeTms = tradeTms;
         return candle;
     }
 
@@ -62,7 +73,6 @@ export class CandleAggregator {
         } else {
             this.candles[symbol][start] = candle
         }
-        this.candleLatestTms[symbol] = start;
     }
 
     aggregate(trade){
@@ -92,8 +102,8 @@ export class CandleAggregator {
             return;
         }
 
-        const insertCandles = []
-        const closedCandles = []
+        const insertCandles = [];
+        const closedCandles = [];
         let insertSymbolCount = 0;
 
         for (const [symbol, candles] of Object.entries(this.candles)) {
@@ -110,7 +120,7 @@ export class CandleAggregator {
         }
         await db.writeCandles(this.exchange, this.unit, insertCandles);
 
-        console.log(`bithumb insert ${this.unit} candles:`, insertSymbolCount)
+        console.log(`bithumb insert ${this.unit} candles:`, insertSymbolCount);
         this.removeClosedCandle(closedCandles);
     }
 
