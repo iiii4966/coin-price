@@ -264,7 +264,7 @@ export const collectCandleHistory = async (db) => {
     const {symbols} = bithumb;
     for (const symbol of symbols) {
         const internalSymbol = bithumb.toStandardSymbol(symbol);
-        for (const [timeframe, bithumbTimeframe] of Object.entries({'1m': '1m'})) {
+        for (const [timeframe, bithumbTimeframe] of Object.entries(bithumb.timeframes)) {
             const {type, value} = CANDLES[timeframe];
             const rangeValue = type === 'day' ? value * 24 : value
             const rangeType = type === 'day' ? 'hours' : type
