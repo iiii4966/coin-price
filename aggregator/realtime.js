@@ -1,11 +1,12 @@
-import {CANDLES} from "./constant.js";
-import {getTimeRange} from "./utils.js";
+import {CANDLES} from "../constant.js";
+import {getMinuteTimeRange} from "../utils.js";
 
-export class CandleAggregator {
+export class CandleRealtimeAggregator {
     exchange
     unit;
     ms;
     candles;
+    candleLatestTms;
 
     constructor(options = {}) {
         this.exchange = options.exchange
@@ -16,7 +17,7 @@ export class CandleAggregator {
     }
 
     getTimeWindow(tms) {
-        return getTimeRange(tms, this.ms)
+        return getMinuteTimeRange(tms, this.ms)
     }
 
     setLatestTms(symbol, candleStartTms) {
@@ -49,11 +50,11 @@ export class CandleAggregator {
         const {latestTradeTms, high, low} = candle;
         if (latestTradeTms <= tradeTms) {
             candle.close = price;
+            candle.latestTradeTms = tradeTms;
         }
         candle.high = Math.max(high, price);
         candle.low = Math.min(low, price);
         candle.volume += amount;
-        candle.latestTradeTms = tradeTms;
         return candle;
     }
 
@@ -96,8 +97,10 @@ export class CandleAggregator {
     }
 
     async loadLatestCandles(db) {
-        const candles = await db.loadLatestCandles(this.exchange, this.unit)
-        for (const {symbol, open, high, low, close, volume, timestamp} of candles) {
+        const candles = await db.fetchLatestCandles(this.exchange, this.unit)
+        console.log(`load ${this.exchange} ${this.unit} candles:`, candles.length);
+
+        for (const {symbol, open, high, low, close, volume, timestamp, closed} of candles) {
             const tms = Number(timestamp)
             const candle = {
                 start: tms,
@@ -108,7 +111,8 @@ export class CandleAggregator {
                 high,
                 low,
                 close,
-                volume
+                volume,
+                closed,
             }
             this.candles[symbol] = {[timestamp]: candle}
         }

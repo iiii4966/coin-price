@@ -1,7 +1,7 @@
 import {Sender} from "@questdb/nodejs-client";
 
 
-export class QuestDB {
+export class Quest {
     client;
     connected = false;
     host;

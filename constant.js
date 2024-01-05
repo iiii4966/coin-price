@@ -1,45 +1,153 @@
 export const ms = 1000
-export const minMs = 60 * ms
+export const minMs = ms * 60
+export const hourMs = minMs * 60;
+export const dayMs = hourMs * 24;
+export const hour6Ms = hourMs * 6;
+export const weekMs = dayMs * 7;
+export const utcHourMs = hourMs * 9
 
 export const CANDLES = {
     '1m': {
+        type: 'minutes',
+        value: 1,
         ms: minMs,
-        sampleUnit: '1m',
+        isRegular: true,
+        questDB: {
+            sampleBy: '1m',
+            sampleByBase: '1m',
+            partitionBy: 'DAY',
+        }
     },
     '3m': {
+        type: 'minutes',
+        value: 3,
         ms: minMs * 3,
-        sampleUnit: '3m',
+        isRegular: true,
+        questDB: {
+            sampleBy: '3m',
+            sampleByBase: '1m',
+            partitionBy: 'MONTH',
+        }
     },
     '5m': {
+        type: 'minutes',
+        value: 5,
         ms: minMs * 5,
-        sampleUnit: '5m',
+        isRegular: true,
+        questDB: {
+            sampleBy: '5m',
+            sampleByBase: '1m',
+            partitionBy: 'MONTH',
+        }
     },
     '10m': {
+        type: 'minutes',
+        value: 10,
         ms: minMs * 10,
-        sampleUnit: '10m',
+        isRegular: true,
+        questDB: {
+            sampleBy: '10m',
+            sampleByBase: '1m',
+            partitionBy: 'MONTH',
+        }
     },
     '15m': {
+        type: 'minutes',
+        value: 15,
         ms: minMs * 15,
-        sampleUnit: '15m',
+        isRegular: true,
+        questDB: {
+            sampleBy: '15m',
+            sampleByBase: '1m',
+            partitionBy: 'MONTH',
+        }
     },
     '30m': {
+        type: 'minutes',
+        value: 30,
         ms: minMs * 30,
-        sampleUnit: '30m',
+        isRegular: true,
+        questDB: {
+            sampleBy: '30m',
+            sampleByBase: '1m',
+            partitionBy: 'YEAR',
+        }
     },
     '1h': {
-        ms: minMs * 60,
-        sampleUnit: '1h',
+        type: 'hours',
+        value: 1,
+        ms: hourMs,
+        isRegular: true,
+        questDB: {
+            sampleBy: '1h',
+            sampleByBase: '1m',
+            partitionBy: 'YEAR',
+        }
+    },
+    '2h': {
+        type: 'hours',
+        value: 2,
+        ms: hourMs * 2,
+        isRegular: true,
+        questDB: {
+            sampleBy: '2h',
+            sampleByBase: '1h',
+            partitionBy: 'YEAR',
+        }
     },
     '4h': {
-        ms: minMs * 60 * 4,
-        sampleUnit: '4h',
+        type: 'hours',
+        value: 4,
+        ms: hourMs * 4,
+        isRegular: true,
+        questDB: {
+            sampleBy: '4h',
+            sampleByBase: '1h',
+            partitionBy: 'YEAR',
+        }
+    },
+    '6h': {
+        type: 'hours',
+        value: 6,
+        ms: hourMs * 6,
+        isRegular: true,
+        questDB: {
+            sampleBy: '6h',
+            sampleByBase: '1h',
+            partitionBy: 'YEAR',
+        }
+    },
+    '12h': {
+        type: 'hours',
+        value: 12,
+        ms: hourMs * 12,
+        isRegular: true,
+        questDB: {
+            sampleBy: '12h',
+            sampleByBase: '1h',
+            partitionBy: 'YEAR',
+        }
     },
     '1d': {
-        ms: minMs * 60 * 24,
-        sampleUnit: '1d',
+        type: 'day',
+        value: 1,
+        ms: dayMs,
+        isRegular: true,
+        questDB: {
+            sampleBy: '1d',
+            sampleByBase: '1h',
+            partitionBy: 'YEAR',
+        }
     },
     '1w': {
-        ms: minMs * 60 * 24 * 7,
-        sampleUnit: '7d',
+        type: 'week',
+        value: 1,
+        ms: weekMs,
+        isRegular: false,
+        questDB: {
+            sampleBy: '7d',
+            sampleByBase: '1d',
+            partitionBy: 'YEAR',
+        }
     },
 }
