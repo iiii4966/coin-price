@@ -191,7 +191,7 @@ export const aggregateRealtimeCandles = async (db) => {
     });
     const minBaseAggregations = minBaseAggregationCandles.map(async (candle) => {
         const [unit, _] = candle;
-        const options = {exchange, unit: unit}
+        const options = {exchange, unit}
         const aggregator = new RegularTimeCandleBatchAggregator(options);
         return aggregator.aggregateLatest(db, now)
     })
@@ -203,7 +203,7 @@ export const aggregateRealtimeCandles = async (db) => {
     });
     const hourBaseAggregations = hourBaseAggregationCandles.map(async (candle) => {
         const [unit, _] = candle;
-        const options = {exchange, unit: unit};
+        const options = {exchange, unit};
         const aggregator = new RegularTimeCandleBatchAggregator(options);
         return aggregator.aggregateLatest(db, now)
     });
@@ -215,9 +215,9 @@ export const aggregateRealtimeCandles = async (db) => {
     });
     const dayBaseAggregations = dayBaseAggregationCandles.map(async (candle) => {
         const [unit, _] = candle;
-        const options = {exchange, unit: unit};
+        const options = {exchange, unit};
         const aggregator = new WeekCandleBatchAggregator(options);
-        return aggregator.aggregateLatest(db, now)
+        return aggregator.aggregateLatest(db, now);
     })
     await Promise.all(dayBaseAggregations);
     console.log(`aggregate bithumb 1d base candles`);
@@ -262,7 +262,7 @@ export const collectCandleHistory = async (db) => {
     await bithumb.loadMarkets();
 
     const {symbols} = bithumb;
-    for (const symbol of symbols) {
+    for (const symbol of ['1INCH/KRW']) {
         const internalSymbol = bithumb.toStandardSymbol(symbol);
         for (const [timeframe, bithumbTimeframe] of Object.entries(bithumb.timeframes)) {
             const {type, value} = CANDLES[timeframe];
