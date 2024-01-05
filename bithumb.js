@@ -1,9 +1,7 @@
 import {bithumb as bithumbRest} from 'ccxt';
 import {ArrayCache} from "./cache.js";
-import {Quest} from "./quest.js";
 import {getTimeRangeWithMoment, sleep} from "./utils.js";
 import {CandleRealtimeAggregator} from "./aggregator/realtime.js";
-import {Postgres} from "./postgres.js";
 import {CANDLES, utcHourMs} from "./constant.js";
 import {RegularTimeCandleBatchAggregator, WeekCandleBatchAggregator} from "./aggregator/batch.js";
 
@@ -181,6 +179,50 @@ class Bithumb extends bithumbRest {
     }
 }
 
+export const aggregateRealtimeCandles = async (db) => {
+    const now = new Date();
+
+    const bithumb = new Bithumb();
+    await bithumb.loadMarkets();
+    const exchange = bithumb.name.toLowerCase();
+
+    const minBaseAggregationCandles = Object.entries(CANDLES).filter(([unit, {questDB: {sampleByBase}}]) => {
+        return unit !== '1m' && sampleByBase === '1m';
+    });
+    const minBaseAggregations = minBaseAggregationCandles.map(async (candle) => {
+        const [unit, _] = candle;
+        const options = {exchange, unit: unit}
+        const aggregator = new RegularTimeCandleBatchAggregator(options);
+        return aggregator.aggregateLatest(db, now)
+    })
+    await Promise.all(minBaseAggregations);
+    console.log(`aggregate bithumb 1m base candles`);
+
+    const hourBaseAggregationCandles = Object.entries(CANDLES).filter(([unit, {questDB: {sampleByBase}}]) => {
+        return sampleByBase === '1h';
+    });
+    const hourBaseAggregations = hourBaseAggregationCandles.map(async (candle) => {
+        const [unit, _] = candle;
+        const options = {exchange, unit: unit};
+        const aggregator = new RegularTimeCandleBatchAggregator(options);
+        return aggregator.aggregateLatest(db, now)
+    });
+    await Promise.all(hourBaseAggregations);
+    console.log(`aggregate bithumb 1h base candles`);
+
+    const dayBaseAggregationCandles = Object.entries(CANDLES).filter(([unit, {questDB: {sampleByBase}}]) => {
+        return sampleByBase === '1d';
+    });
+    const dayBaseAggregations = dayBaseAggregationCandles.map(async (candle) => {
+        const [unit, _] = candle;
+        const options = {exchange, unit: unit};
+        const aggregator = new WeekCandleBatchAggregator(options);
+        return aggregator.aggregateLatest(db, now)
+    })
+    await Promise.all(dayBaseAggregations);
+    console.log(`aggregate bithumb 1d base candles`);
+}
+
 export const aggregateCandleHistory = async (db) => {
     console.log(`start aggregate bithumb candle history`)
 
@@ -222,7 +264,7 @@ export const collectCandleHistory = async (db) => {
     const {symbols} = bithumb;
     for (const symbol of symbols) {
         const internalSymbol = bithumb.toStandardSymbol(symbol);
-        for (const [timeframe, bithumbTimeframe] of Object.entries(bithumb.timeframes)) {
+        for (const [timeframe, bithumbTimeframe] of Object.entries({'1m': '1m'})) {
             const {type, value} = CANDLES[timeframe];
             const rangeValue = type === 'day' ? value * 24 : value
             const rangeType = type === 'day' ? 'hours' : type
@@ -244,10 +286,7 @@ export const collectCandleHistory = async (db) => {
     console.log(`complete collect bithumb candle history`)
 }
 
-export const collect = async (config) => {
-    const writer = new Quest();
-    const reader = new Postgres(config);
-
+export const collect = async (writer, reader) => {
     const bithumb = new Bithumb();
     await bithumb.loadMarkets();
     const loadMarketInterval = setInterval(() => {bithumb.loadMarkets(true).catch(console.error)}, 1000 * 60 * 60);

@@ -39,7 +39,6 @@ export class Postgres {
                 low,
                 close,
                 volume,
-                closed,
             FROM ${exchange}_candle_${unit} 
             LATEST ON timestamp PARTITION BY symbol;
         `

@@ -34,7 +34,7 @@ export class RegularTimeCandleBatchAggregator {
 
     async aggregateLatest(writer, nowDate) {
         const {sampleBy, sampleByBase} = this.batchOptions;
-        const {start} = getTimeRangeWithMoment(nowDate.getTime(), this.timeType, this.timeValue);
+        const {start} = this.getTimeWindow(nowDate.getTime());
         const params = {exchange: this.exchange, unit: this.unit, sampleBy, sampleByBase, timestamp: start}
         return writer.aggregateLatestCandles(params)
     }
