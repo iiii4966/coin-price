@@ -1,6 +1,7 @@
 import {dayMs, hour6Ms, hourMs, minMs, utcHourMs, weekMs} from "./constant.js";
 import * as mr from 'moment-round';
-import moment from 'moment-timezone';
+import * as mt from 'moment-timezone';
+import moment from 'moment';
 
 moment.tz.setDefault('UTC')
 
@@ -48,9 +49,3 @@ export const getWeekTimeRange = (date) => {
     const end = new Date(start + weekMs).getTime();
     return {start, end};
 }
-//
-// const {start, end} = getTimeRangeWithMoment(1704294000000, 'hours', 24);
-// console.log(new Date(1704294000000));
-// console.log(start, end);
-// console.log(new Date(start), new Date(end));
-//

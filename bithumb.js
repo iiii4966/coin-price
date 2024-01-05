@@ -262,7 +262,7 @@ export const collectCandleHistory = async (db) => {
     await bithumb.loadMarkets();
 
     const {symbols} = bithumb;
-    for (const symbol of ['1INCH/KRW']) {
+    for (const symbol of symbols) {
         const internalSymbol = bithumb.toStandardSymbol(symbol);
         for (const [timeframe, bithumbTimeframe] of Object.entries(bithumb.timeframes)) {
             const {type, value} = CANDLES[timeframe];
@@ -274,9 +274,6 @@ export const collectCandleHistory = async (db) => {
             const parsedCandles = candles.map(
                 ([tms, open, high, low, close, volume]) => {
                     const {start} = getTimeRangeWithMoment(tms, rangeType, rangeValue);
-                    if (timeframe === '1d') {
-                        console.log(tms, start)
-                    }
                     return {start, symbol: internalSymbol, open, high, low, close, volume, closed: true};
                 }
             )
