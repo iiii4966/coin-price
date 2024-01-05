@@ -48,3 +48,9 @@ export const getWeekTimeRange = (date) => {
     const end = new Date(start + weekMs).getTime();
     return {start, end};
 }
+//
+// const {start, end} = getTimeRangeWithMoment(1704294000000, 'hours', 24);
+// console.log(new Date(1704294000000));
+// console.log(start, end);
+// console.log(new Date(start), new Date(end));
+//

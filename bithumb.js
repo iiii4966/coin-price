@@ -274,6 +274,9 @@ export const collectCandleHistory = async (db) => {
             const parsedCandles = candles.map(
                 ([tms, open, high, low, close, volume]) => {
                     const {start} = getTimeRangeWithMoment(tms, rangeType, rangeValue);
+                    if (timeframe === '1d') {
+                        console.log(tms, start)
+                    }
                     return {start, symbol: internalSymbol, open, high, low, close, volume, closed: true};
                 }
             )
