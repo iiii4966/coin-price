@@ -4,6 +4,7 @@ import {getCandleTimeRange, sleep} from "./utils.js";
 import {CandleRealtimeAggregator} from "./aggregator/realtime.js";
 import {CANDLES, utcHourMs} from "./constant.js";
 import {RegularTimeCandleBatchAggregator, WeekCandleBatchAggregator} from "./aggregator/batch.js";
+import {parse} from "dotenv";
 
 class Bithumb extends bithumbRest {
     internalSymbols = [];
@@ -265,7 +266,8 @@ export const collectCandleHistory = async (db) => {
     await bithumb.loadMarkets();
 
     const {symbols} = bithumb;
-    for (const symbol of symbols) {
+    console.log(JSON.stringify(symbols))
+    for (const symbol of ['LAZIO/BTC']) {
         const internalSymbol = bithumb.toStandardSymbol(symbol);
         for (const [timeframe, bithumbTimeframe] of Object.entries(bithumb.timeframes)) {
             if (CANDLES[timeframe] === undefined) {
@@ -273,20 +275,17 @@ export const collectCandleHistory = async (db) => {
             }
 
             const candles = await bithumb.fetchOHLCV(symbol, bithumbTimeframe);
-
             const parsedCandles = candles.map(
                 ([tms, open, high, low, close, volume], idx) => {
                     let start;
                     if (timeframe === '1d') {
                         // 1m 캔들은 데이터 조회 시 가장 최근 데이터 시간과 캔들 시간이 일치하지만
                         // 나머지 캔들은 일치하지 않는다. 최근 데이터의 시간을 통해 캔들의 시작 시간을 유추해야 한다.
-                        if (candles.length - 1 === idx) {
-                            const date = new Date(tms);
-                            if (date.getUTCHours() !== 15) {
-                                const range = getCandleTimeRange(tms, timeframe)
-                                start = range.start
-                                start -= utcHourMs
-                            }
+                        const date = new Date(tms);
+                        if (candles.length - 1 === idx && date.getUTCHours() !== 15) {
+                            const range = getCandleTimeRange(tms, timeframe)
+                            start = range.start
+                            start -= utcHourMs
                         } else {
                             start = tms;
                         }
@@ -297,7 +296,6 @@ export const collectCandleHistory = async (db) => {
                     return {start, symbol: internalSymbol, open, high, low, close, volume, closed: true};
                 }
             )
-
             await db.writeCandles(bithumb.name.toLowerCase(), timeframe, parsedCandles)
             console.log(`collect ${internalSymbol} ${timeframe} candle history:`, candles.length)
         }
