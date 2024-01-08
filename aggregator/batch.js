@@ -32,14 +32,14 @@ export class RegularTimeCandleBatchAggregator {
         return writer.aggregateAllCandles(params)
     }
 
-    async aggregateLatest(writer, nowDate) {
+    async aggregateLatest(db, nowDate) {
         const {sampleBy, sampleByBase} = this.batchOptions;
         const {start} = this.getTimeWindow(nowDate.getTime());
         const params = {
             exchange: this.exchange, unit: this.unit, sampleBy, sampleByBase,
             timestamp: start, timezone: this.timezone
         }
-        return writer.aggregateLatestCandles(params)
+        return db.aggregateLatestCandles(params)
     }
 }
 

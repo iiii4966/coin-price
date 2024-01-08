@@ -265,7 +265,7 @@ export const collectCandleHistory = async (db) => {
     await bithumb.loadMarkets();
 
     const {symbols} = bithumb;
-    for (const symbol of ['BTC/KRW']) {
+    for (const symbol of symbols) {
         const internalSymbol = bithumb.toStandardSymbol(symbol);
         for (const [timeframe, bithumbTimeframe] of Object.entries(bithumb.timeframes)) {
             if (CANDLES[timeframe] === undefined) {
@@ -321,7 +321,7 @@ export const collect = async (writer, reader) => {
 
     while (true) {
         try {
-            const trades = await bithumb.watchTradesForSymbols(['BTC_KRW']);
+            const trades = await bithumb.watchTradesForSymbols(bithumb.internalSymbols);
             for (const trade of trades) {
                 minAggregator.aggregate(trade);
             }
