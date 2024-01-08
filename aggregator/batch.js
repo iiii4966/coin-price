@@ -16,7 +16,7 @@ export class RegularTimeCandleBatchAggregator {
 
         const candleConfig = CANDLES[this.unit];
         this.ms = candleConfig.ms
-        this.batchOptions = candleConfig.questDB
+        this.batchOptions = candleConfig.questDB[this.exchange]
     }
 
     getTimeWindow(tms) {
@@ -24,12 +24,12 @@ export class RegularTimeCandleBatchAggregator {
         return {start: start - this.ms, end};
     }
 
-    async aggregateAll(writer){
+    async aggregateAll(db){
         const {sampleBy, sampleByBase}  = this.batchOptions
         const params = {
             exchange: this.exchange, unit: this.unit, sampleBy, sampleByBase, timezone: this.timezone
         }
-        return writer.aggregateAllCandles(params)
+        return db.aggregateAllCandles(params)
     }
 
     async aggregateLatest(db, nowDate) {
@@ -56,7 +56,7 @@ export class IrregularCandleBatchAggregator {
 
         const candleConfig = CANDLES[this.unit];
         this.ms = candleConfig.ms;
-        this.batchOptions = candleConfig.questDB;
+        this.batchOptions = candleConfig.questDB[this.exchange];
     }
 
     async getOldestCandleTms(reader){

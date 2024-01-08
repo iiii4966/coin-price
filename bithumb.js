@@ -187,7 +187,9 @@ export const aggregateRealtimeCandles = async (db) => {
     await bithumb.loadMarkets();
     const exchange = bithumb.name.toLowerCase();
 
-    const minBaseAggregationCandles = Object.entries(CANDLES).filter(([unit, {questDB: {sampleByBase}}]) => {
+    const minBaseAggregationCandles = Object.entries(CANDLES).filter((candle) => {
+        const [unit, {questDB}] = candle;
+        const {sampleByBase} = questDB[exchange];
         return unit !== '1m' && sampleByBase === '1m';
     });
     const minBaseAggregations = minBaseAggregationCandles.map(async (candle) => {
@@ -199,24 +201,42 @@ export const aggregateRealtimeCandles = async (db) => {
     await Promise.all(minBaseAggregations);
     console.log(`aggregate bithumb 1m base candles`);
 
-    const hourBaseAggregationCandles = Object.entries(CANDLES).filter(([unit, {questDB: {sampleByBase}}]) => {
+    const min15BaseAggregationCandles = Object.entries(CANDLES).filter((candle) => {
+        const [_, {questDB}] = candle;
+        const {sampleByBase} = questDB[exchange];
+        return sampleByBase === '15m';
+    });
+    const min15BaseAggregations = min15BaseAggregationCandles.map(async (candle) => {
+        const [unit, _] = candle;
+        const options = {exchange, unit, timezone: 'UTC'}
+        const aggregator = new RegularTimeCandleBatchAggregator(options);
+        return aggregator.aggregateLatest(db, now)
+    });
+    await Promise.all(min15BaseAggregations);
+    console.log(`aggregate bithumb 15m base candles`);
+
+    const hourBaseAggregationCandles = Object.entries(CANDLES).filter((candle) => {
+        const [_, {questDB}] = candle;
+        const {sampleByBase} = questDB[exchange];
         return sampleByBase === '1h';
     });
     const hourBaseAggregations = hourBaseAggregationCandles.map(async (candle) => {
         const [unit, _] = candle;
-        const options = {exchange, unit, timezone: 'KST'}
+        const options = {exchange, unit, timezone: 'UTC'}
         const aggregator = new RegularTimeCandleBatchAggregator(options);
         return aggregator.aggregateLatest(db, now)
     });
     await Promise.all(hourBaseAggregations);
     console.log(`aggregate bithumb 1h base candles`);
 
-    const dayBaseAggregationCandles = Object.entries(CANDLES).filter(([unit, {questDB: {sampleByBase}}]) => {
+    const dayBaseAggregationCandles = Object.entries(CANDLES).filter((candle) => {
+        const [_, {questDB}] = candle;
+        const {sampleByBase} = questDB[exchange];
         return sampleByBase === '1d';
     });
     const dayBaseAggregations = dayBaseAggregationCandles.map(async (candle) => {
         const [unit, _] = candle;
-        const options = {exchange, unit, timezone: 'KST'}
+        const options = {exchange, unit, timezone: 'UTC'}
         const aggregator = new WeekCandleBatchAggregator(options);
         return aggregator.aggregateLatest(db, now);
     })
@@ -234,15 +254,16 @@ export const aggregateCandleHistory = async (db) => {
     const bithumbCandleUnits = Object.keys(bithumb.timeframes)
 
     for (const [unit, {isRegular}] of Object.entries(CANDLES)) {
-        if (bithumbCandleUnits.includes(unit)) {
+        if (unit !== '1d' && bithumbCandleUnits.includes(unit)) {
             continue
         }
 
         let aggregator;
-        const options = {exchange, unit: unit, timezone: 'KST'}
+        const options = {exchange, unit, timezone: 'UTC'}
         if (isRegular) {
             aggregator = new RegularTimeCandleBatchAggregator(options)
         } else if (unit === '1w') {
+            await sleep(1000)
             aggregator = new WeekCandleBatchAggregator(options)
         } else {
             throw new Error('No aggregator');
@@ -257,7 +278,7 @@ export const aggregateCandleHistory = async (db) => {
 
 
 /**
- * 캔들 수집 시간:
+ * 모든 종목 캔들 수집 시간: 30분
  */
 export const collectCandleHistory = async (db) => {
     console.log(`start collect bithumb candle history`)
@@ -266,11 +287,12 @@ export const collectCandleHistory = async (db) => {
     await bithumb.loadMarkets();
 
     const {symbols} = bithumb;
-    console.log(JSON.stringify(symbols))
-    for (const symbol of ['LAZIO/BTC']) {
+
+    for (const symbol of symbols) {
         const internalSymbol = bithumb.toStandardSymbol(symbol);
         for (const [timeframe, bithumbTimeframe] of Object.entries(bithumb.timeframes)) {
-            if (CANDLES[timeframe] === undefined) {
+            // 빗썸의 1일 캔들은 한국시간 기준 00시 이므로 UTC 기준과 달라 수집하지 않음
+            if (CANDLES[timeframe] === undefined || timeframe === '1d') {
                 continue
             }
 

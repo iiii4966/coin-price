@@ -13,8 +13,10 @@ export const CANDLES = {
         ms: minMs,
         isRegular: true,
         questDB: {
-            sampleBy: '1m',
-            sampleByBase: '1m',
+            bithumb: {
+                sampleBy: '1m',
+                sampleByBase: '1m',
+            },
             partitionBy: 'DAY',
         }
     },
@@ -24,8 +26,10 @@ export const CANDLES = {
         ms: minMs * 3,
         isRegular: true,
         questDB: {
-            sampleBy: '3m',
-            sampleByBase: '1m',
+            bithumb: {
+                sampleBy: '3m',
+                sampleByBase: '1m',
+            },
             partitionBy: 'MONTH',
         }
     },
@@ -35,8 +39,10 @@ export const CANDLES = {
         ms: minMs * 5,
         isRegular: true,
         questDB: {
-            sampleBy: '5m',
-            sampleByBase: '1m',
+            bithumb: {
+                sampleBy: '5m',
+                sampleByBase: '1m',
+            },
             partitionBy: 'MONTH',
         }
     },
@@ -46,8 +52,10 @@ export const CANDLES = {
         ms: minMs * 10,
         isRegular: true,
         questDB: {
-            sampleBy: '10m',
-            sampleByBase: '1m',
+            bithumb: {
+                sampleBy: '10m',
+                sampleByBase: '1m',
+            },
             partitionBy: 'MONTH',
         }
     },
@@ -57,8 +65,10 @@ export const CANDLES = {
         ms: minMs * 15,
         isRegular: true,
         questDB: {
-            sampleBy: '15m',
-            sampleByBase: '1m',
+            bithumb: {
+                sampleBy: '15m',
+                sampleByBase: '1m',
+            },
             partitionBy: 'MONTH',
         }
     },
@@ -68,8 +78,10 @@ export const CANDLES = {
         ms: minMs * 30,
         isRegular: true,
         questDB: {
-            sampleBy: '30m',
-            sampleByBase: '1m',
+            bithumb: {
+                sampleBy: '30m',
+                sampleByBase: '15m',
+            },
             partitionBy: 'YEAR',
         }
     },
@@ -79,8 +91,10 @@ export const CANDLES = {
         ms: hourMs,
         isRegular: true,
         questDB: {
-            sampleBy: '1h',
-            sampleByBase: '1m',
+            bithumb: {
+                sampleBy: '1h',
+                sampleByBase: '15m',
+            },
             partitionBy: 'YEAR',
         }
     },
@@ -101,8 +115,10 @@ export const CANDLES = {
         ms: hourMs * 4,
         isRegular: true,
         questDB: {
-            sampleBy: '4h',
-            sampleByBase: '1h',
+            bithumb: {
+                sampleBy: '4h',
+                sampleByBase: '1h',
+            },
             partitionBy: 'YEAR',
         }
     },
@@ -134,8 +150,10 @@ export const CANDLES = {
         ms: dayMs,
         isRegular: true,
         questDB: {
-            sampleBy: '1d',
-            sampleByBase: '1h',
+            bithumb: {
+                sampleBy: '1d',
+                sampleByBase: '1h',
+            },
             partitionBy: 'YEAR',
         }
     },
@@ -145,8 +163,10 @@ export const CANDLES = {
         ms: weekMs,
         isRegular: false,
         questDB: {
-            sampleBy: '7d',
-            sampleByBase: '1d',
+            bithumb: {
+                sampleBy: '7d',
+                sampleByBase: '1d',
+            },
             partitionBy: 'YEAR',
         }
     },
