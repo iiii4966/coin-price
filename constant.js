@@ -84,17 +84,17 @@ export const CANDLES = {
             partitionBy: 'YEAR',
         }
     },
-    '2h': {
-        type: 'hours',
-        value: 2,
-        ms: hourMs * 2,
-        isRegular: true,
-        questDB: {
-            sampleBy: '2h',
-            sampleByBase: '1h',
-            partitionBy: 'YEAR',
-        }
-    },
+    // '2h': {
+    //     type: 'hours',
+    //     value: 2,
+    //     ms: hourMs * 2,
+    //     isRegular: true,
+    //     questDB: {
+    //         sampleBy: '2h',
+    //         sampleByBase: '1h',
+    //         partitionBy: 'YEAR',
+    //     }
+    // },
     '4h': {
         type: 'hours',
         value: 4,
@@ -106,28 +106,28 @@ export const CANDLES = {
             partitionBy: 'YEAR',
         }
     },
-    '6h': {
-        type: 'hours',
-        value: 6,
-        ms: hourMs * 6,
-        isRegular: true,
-        questDB: {
-            sampleBy: '6h',
-            sampleByBase: '1h',
-            partitionBy: 'YEAR',
-        }
-    },
-    '12h': {
-        type: 'hours',
-        value: 12,
-        ms: hourMs * 12,
-        isRegular: true,
-        questDB: {
-            sampleBy: '12h',
-            sampleByBase: '1h',
-            partitionBy: 'YEAR',
-        }
-    },
+    // '6h': {
+    //     type: 'hours',
+    //     value: 6,
+    //     ms: hourMs * 6,
+    //     isRegular: true,
+    //     questDB: {
+    //         sampleBy: '6h',
+    //         sampleByBase: '1h',
+    //         partitionBy: 'YEAR',
+    //     }
+    // },
+    // '12h': {
+    //     type: 'hours',
+    //     value: 12,
+    //     ms: hourMs * 12,
+    //     isRegular: true,
+    //     questDB: {
+    //         sampleBy: '12h',
+    //         sampleByBase: '1h',
+    //         partitionBy: 'YEAR',
+    //     }
+    // },
     '1d': {
         type: 'day',
         value: 1,

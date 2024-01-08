@@ -5,7 +5,7 @@ module.exports = {
           script: 'cmd/bithumb_candle_1m_collector.js',
           max_memory_restart: '1G',
           time: true,
-          autorestart: true
+          autorestart: true,
       },
       {
           name: 'bithumb_candles_collector',

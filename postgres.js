@@ -55,11 +55,13 @@ export class Postgres {
     }
 
     async aggregateAllCandles(params = {}){
-        const {exchange, unit, sampleBy, sampleByBase, isAlign = true} = params;
+        const {
+            exchange, unit, sampleBy, sampleByBase, timezone = 'UTC', isAlign = true
+        } = params;
 
         let alignToQuery = ''
         if (isAlign) {
-            alignToQuery = 'ALIGN TO CALENDAR'
+            alignToQuery = `ALIGN TO CALENDAR TIME ZONE '${timezone}'`
         }
 
         const sql = `
@@ -79,11 +81,13 @@ export class Postgres {
     }
 
     async aggregateLatestCandles(params = {}){
-        const {exchange, unit, sampleBy, sampleByBase, timestamp, isAlign = true} = params;
+        const {
+            exchange, unit, sampleBy, sampleByBase, timestamp, timezone = 'UTC', isAlign = true
+        } = params;
 
         let alignToQuery = ''
         if (isAlign) {
-            alignToQuery = 'ALIGN TO CALENDAR'
+            alignToQuery = `ALIGN TO CALENDAR TIME ZONE '${timezone}'`
         }
 
         const sql = `
@@ -104,30 +108,43 @@ export class Postgres {
     }
 
     async aggregateCandlesByTimeFrame(params = {}){
-        const {exchange, unit, sampleBy, sampleByBase, range, isAlign = true} = params;
+        const {
+            exchange, unit, sampleBy, sampleByBase, range, timezone = 'UTC', isAlign = true
+        } = params;
 
         let alignToQuery = ''
         if (isAlign) {
-            alignToQuery = 'ALIGN TO CALENDAR'
+            alignToQuery = `ALIGN TO CALENDAR TIME ZONE '${timezone}'`
         }
 
-        const {start, end} = range;
+        let {start, end} = range;
+        start *= 1000
+        end *= 1000
+
         const sql = `
             INSERT INTO ${exchange}_candle_${unit}(timestamp, symbol, open, high, low, close, volume)
-            SELECT
-              timestamp,
+            SELECT 
+              CAST(${start} AS timestamp) timestamp,
               symbol,
-              first(open) open,
-              max(high) high,
-              min(low) low,
-              last(close) close,
-              nsum(volume) volume
-            FROM ${exchange}_candle_${sampleByBase}
-            WHERE ${start * 1000} <= timestamp AND ${end * 1000} > timestamp
-            SAMPLE BY ${sampleBy} ${alignToQuery};
+              open,
+              high,
+              low,
+              close,
+              volume
+            FROM (
+              SELECT
+                timestamp,
+                symbol,
+                first(open) open,
+                max(high) high,
+                min(low) low,
+                last(close) close,
+                nsum(volume) volume
+              FROM ${exchange}_candle_${sampleByBase}
+              WHERE ${start} <= timestamp AND timestamp < ${end}
+              SAMPLE BY ${sampleBy} ${alignToQuery}
+            )
         `
         return this.query(sql);
     }
-
-
 }

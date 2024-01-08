@@ -1,6 +1,6 @@
 import {bithumb as bithumbRest} from 'ccxt';
 import {ArrayCache} from "./cache.js";
-import {getTimeRangeWithMoment, sleep} from "./utils.js";
+import {getCandleTimeRange, sleep} from "./utils.js";
 import {CandleRealtimeAggregator} from "./aggregator/realtime.js";
 import {CANDLES, utcHourMs} from "./constant.js";
 import {RegularTimeCandleBatchAggregator, WeekCandleBatchAggregator} from "./aggregator/batch.js";
@@ -203,7 +203,7 @@ export const aggregateRealtimeCandles = async (db) => {
     });
     const hourBaseAggregations = hourBaseAggregationCandles.map(async (candle) => {
         const [unit, _] = candle;
-        const options = {exchange, unit};
+        const options = {exchange, unit, timezone: 'KST'}
         const aggregator = new RegularTimeCandleBatchAggregator(options);
         return aggregator.aggregateLatest(db, now)
     });
@@ -215,7 +215,7 @@ export const aggregateRealtimeCandles = async (db) => {
     });
     const dayBaseAggregations = dayBaseAggregationCandles.map(async (candle) => {
         const [unit, _] = candle;
-        const options = {exchange, unit};
+        const options = {exchange, unit, timezone: 'KST'}
         const aggregator = new WeekCandleBatchAggregator(options);
         return aggregator.aggregateLatest(db, now);
     })
@@ -238,7 +238,7 @@ export const aggregateCandleHistory = async (db) => {
         }
 
         let aggregator;
-        const options = {exchange, unit: unit}
+        const options = {exchange, unit: unit, timezone: 'KST'}
         if (isRegular) {
             aggregator = new RegularTimeCandleBatchAggregator(options)
         } else if (unit === '1w') {
@@ -254,7 +254,10 @@ export const aggregateCandleHistory = async (db) => {
     console.log(`complete aggregate bithumb candle history`)
 }
 
-// 모든 캔들 수집하는데 30분 걸림
+
+/**
+ * 캔들 수집 시간:
+ */
 export const collectCandleHistory = async (db) => {
     console.log(`start collect bithumb candle history`)
 
@@ -262,18 +265,35 @@ export const collectCandleHistory = async (db) => {
     await bithumb.loadMarkets();
 
     const {symbols} = bithumb;
-    for (const symbol of symbols) {
+    for (const symbol of ['BTC/KRW']) {
         const internalSymbol = bithumb.toStandardSymbol(symbol);
         for (const [timeframe, bithumbTimeframe] of Object.entries(bithumb.timeframes)) {
-            const {type, value} = CANDLES[timeframe];
-            const rangeValue = type === 'day' ? value * 24 : value
-            const rangeType = type === 'day' ? 'hours' : type
+            if (CANDLES[timeframe] === undefined) {
+                continue
+            }
 
             const candles = await bithumb.fetchOHLCV(symbol, bithumbTimeframe);
 
             const parsedCandles = candles.map(
-                ([tms, open, high, low, close, volume]) => {
-                    const {start} = getTimeRangeWithMoment(tms, rangeType, rangeValue);
+                ([tms, open, high, low, close, volume], idx) => {
+                    let start;
+                    if (timeframe === '1d') {
+                        // 1m 캔들은 데이터 조회 시 가장 최근 데이터 시간과 캔들 시간이 일치하지만
+                        // 나머지 캔들은 일치하지 않는다. 최근 데이터의 시간을 통해 캔들의 시작 시간을 유추해야 한다.
+                        if (candles.length - 1 === idx) {
+                            const date = new Date(tms);
+                            if (date.getUTCHours() !== 15) {
+                                const range = getCandleTimeRange(tms, timeframe)
+                                start = range.start
+                                start -= utcHourMs
+                            }
+                        } else {
+                            start = tms;
+                        }
+                    } else {
+                        const range = getCandleTimeRange(tms, timeframe)
+                        start = range.start
+                    }
                     return {start, symbol: internalSymbol, open, high, low, close, volume, closed: true};
                 }
             )
@@ -289,19 +309,19 @@ export const collectCandleHistory = async (db) => {
 export const collect = async (writer, reader) => {
     const bithumb = new Bithumb();
     await bithumb.loadMarkets();
-    const loadMarketInterval = setInterval(() => {bithumb.loadMarkets(true).catch(console.error)}, 1000 * 60 * 60);
+    setInterval(() => {bithumb.loadMarkets(true).catch(console.error)}, 1000 * 60 * 60);
 
     const minAggregator = new CandleRealtimeAggregator(
         {unit: '1m', exchange: bithumb.name.toLowerCase()}
     );
     await minAggregator.loadLatestCandles(reader)
-    const persistInterval = setInterval(() => {
+    setInterval(() => {
         minAggregator.persist(writer).catch(console.error)
     }, 1000 * 3);
 
     while (true) {
         try {
-            const trades = await bithumb.watchTradesForSymbols(bithumb.internalSymbols);
+            const trades = await bithumb.watchTradesForSymbols(['BTC_KRW']);
             for (const trade of trades) {
                 minAggregator.aggregate(trade);
             }
