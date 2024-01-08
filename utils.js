@@ -1,9 +1,4 @@
-import {CANDLES, dayMs, hourMs, minMs, utcHourMs, weekMs} from "./constant.js";
-import * as mr from 'moment-round';
-import * as mt from 'moment-timezone';
-import moment from 'moment';
-
-moment.tz.setDefault('UTC')
+import {CANDLES, minMs, utcHourMs, weekMs} from "./constant.js";
 
 export const sleep = (milliseconds) => {
     return new Promise(resolve => setTimeout(resolve, milliseconds))
@@ -15,16 +10,6 @@ export const getMinuteTimeRange = (tms, roundMs = minMs) => {
         start: rounded,
         end: rounded + roundMs
     };
-}
-
-// unit: hours, minutes
-// value: number type
-export const getTimeRangeWithMoment = (tms, unit, value) => {
-    let m = new moment(tms);
-    m = m.floor(value, unit);
-    const start = m.unix() * 1000;
-    const end = start + (value * (unit === 'hours' ? hourMs : minMs));
-    return {start, end}
 }
 
 export const getWeekTimeRange = (date, timezone = 'UTC') => {
