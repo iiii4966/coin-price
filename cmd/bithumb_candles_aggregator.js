@@ -8,7 +8,7 @@ const bootstrap = async () => {
     const db = new Postgres(config);
 
     process.on('SIGINT', async () => {
-        await db.close()
+        console.log('Shutdown bithumb candles aggregator')
         process.exit()
     })
 

@@ -350,8 +350,4 @@ export const collect = async (writer, reader) => {
             await sleep(10);
         }
     }
-
-    // TODO: signal
-    // await writer.close();
-    // await reader.close();
 }

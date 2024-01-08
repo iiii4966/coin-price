@@ -12,8 +12,7 @@ const bootstrap = async () => {
     await bithumb.collect(writer, reader);
 
     process.on('SIGINT', async () => {
-        await reader.close();
-        await writer.close();
+        console.log('Shutdown bithumb 1m candle collector')
         process.exit();
     })
 }
