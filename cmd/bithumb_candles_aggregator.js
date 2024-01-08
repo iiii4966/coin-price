@@ -1,6 +1,6 @@
-import * as bithumb from "../bithumb.js";
+import * as bithumb from "../exchange/bithumb.js";
 import {configDotenv} from "dotenv";
-import {Postgres} from "../postgres.js";
+import {Postgres} from "../db/postgres.js";
 import {CronJob} from "cron";
 
 const bootstrap = async () => {

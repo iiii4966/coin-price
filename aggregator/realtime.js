@@ -1,5 +1,5 @@
-import {CANDLES} from "../constant.js";
-import {getMinuteTimeRange} from "../utils.js";
+import {CANDLES} from "../utils/constant.js";
+import {getMinuteTimeRange} from "../utils/utils.js";
 
 export class CandleRealtimeAggregator {
     exchange

@@ -1,7 +1,7 @@
-import * as bithumb from "../bithumb.js";
+import * as bithumb from "../exchange/bithumb.js";
 import {configDotenv} from "dotenv";
-import {Quest} from "../quest.js";
-import {Postgres} from "../postgres.js";
+import {Quest} from "../db/quest.js";
+import {Postgres} from "../db/postgres.js";
 
 const bootstrap = async () => {
     const {parsed: config} = configDotenv()

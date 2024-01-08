@@ -1,5 +1,5 @@
-import {Postgres} from "../postgres.js";
-import {CANDLES} from "../constant.js";
+import {Postgres} from "../db/postgres.js";
+import {CANDLES} from "../utils/constant.js";
 import {configDotenv} from "dotenv";
 
 

@@ -1,9 +1,9 @@
 import {bithumb as bithumbRest} from 'ccxt';
-import {ArrayCache} from "./cache.js";
-import {getCandleTimeRange, sleep} from "./utils.js";
-import {CandleRealtimeAggregator} from "./aggregator/realtime.js";
-import {CANDLES, utcHourMs} from "./constant.js";
-import {RegularTimeCandleBatchAggregator, WeekCandleBatchAggregator} from "./aggregator/batch.js";
+import {ArrayCache} from "../utils/cache.js";
+import {getCandleTimeRange, sleep} from "../utils/utils.js";
+import {CandleRealtimeAggregator} from "../aggregator/realtime.js";
+import {CANDLES, utcHourMs} from "../utils/constant.js";
+import {RegularTimeCandleBatchAggregator, WeekCandleBatchAggregator} from "../aggregator/batch.js";
 import {parse} from "dotenv";
 
 class Bithumb extends bithumbRest {
