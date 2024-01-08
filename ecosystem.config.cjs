@@ -6,6 +6,9 @@ module.exports = {
           max_memory_restart: '1G',
           time: true,
           autorestart: true,
+          env: {
+              TZ: 'UTC'
+          }
       },
       {
           name: 'bithumb_candles_collector',
@@ -13,6 +16,9 @@ module.exports = {
           max_memory_restart: '1G',
           time: true,
           autorestart: true,
+          env: {
+              TZ: 'UTC'
+          }
       }
   ],
 };
