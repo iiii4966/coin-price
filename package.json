@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "@questdb/nodejs-client": "^2.1.0",
+    "better-sqlite3": "^9.2.2",
     "ccxt": "^4.1.97",
     "cron": "^3.1.6",
     "dotenv": "^16.3.1",

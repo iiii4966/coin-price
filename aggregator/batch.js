@@ -16,7 +16,7 @@ export class RegularTimeCandleBatchAggregator {
 
         const candleConfig = CANDLES[this.unit];
         this.ms = candleConfig.ms
-        this.batchOptions = candleConfig.questDB[this.exchange]
+        this.batchOptions = options.batchOptions ?? candleConfig.questDB[this.exchange]
     }
 
     getTimeWindow(tms) {

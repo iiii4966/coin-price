@@ -4,9 +4,8 @@ import {getCandleTimeRange, sleep} from "../utils/utils.js";
 import {CandleRealtimeAggregator} from "../aggregator/realtime.js";
 import {CANDLES, utcHourMs} from "../utils/constant.js";
 import {RegularTimeCandleBatchAggregator, WeekCandleBatchAggregator} from "../aggregator/batch.js";
-import {parse} from "dotenv";
 
-class Bithumb extends bithumbRest {
+export class Bithumb extends bithumbRest {
     internalSymbols = [];
 
     describe() {
@@ -24,7 +23,7 @@ class Bithumb extends bithumbRest {
             },
             'options': {
                 newUpdates: true,
-                'tradesLimit': 500,
+                'tradesLimit': 1000,
             },
             'streaming': {
                 'keepAlive': 15000,
@@ -260,6 +259,10 @@ export const aggregateCandleHistory = async (db) => {
 
         let aggregator;
         const options = {exchange, unit, timezone: 'UTC'}
+        if (unit === '15m') {
+            options.batchOptions = {sampleBy: '15m', sampleByBase: '5m'};
+        }
+
         if (isRegular) {
             aggregator = new RegularTimeCandleBatchAggregator(options)
         } else if (unit === '1w') {
@@ -275,7 +278,6 @@ export const aggregateCandleHistory = async (db) => {
 
     console.log(`complete aggregate bithumb candle history`)
 }
-
 
 /**
  * 모든 종목 캔들 수집 시간: 30분

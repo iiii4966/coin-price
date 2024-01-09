@@ -29,6 +29,29 @@ export class Postgres {
         return result;
     }
 
+    async fetchCandlesBySymbol(exchange,
+                               unit = '1m',
+                               symbol,
+                               since = 0,
+                               limit = 1000,
+                               order = 'DESC'){
+        const sql = `
+            SELECT
+                timestamp,
+                open, 
+                high,
+                low,
+                close,
+                volume
+            FROM ${exchange}_candle_${unit}
+            WHERE symbol = '${symbol}'
+            ORDER BY timestamp ${order}
+            LIMIT ${since}, ${limit}
+        `
+        const result = await this.query(sql);
+        return result.rows
+    }
+
     async fetchLatestCandles(exchange, unit = '1m'){
         const sql = `
             SELECT
@@ -38,7 +61,7 @@ export class Postgres {
                 high,
                 low,
                 close,
-                volume,
+                volume
             FROM ${exchange}_candle_${unit} 
             LATEST ON timestamp PARTITION BY symbol;
         `

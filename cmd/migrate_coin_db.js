@@ -2,7 +2,6 @@ import {Postgres} from "../db/postgres.js";
 import {CANDLES} from "../utils/constant.js";
 import {configDotenv} from "dotenv";
 
-
 const createCandleTables = async (db) => {
     const client = await db.connect();
     for (const [unit, {questDB: {partitionBy}}] of Object.entries(CANDLES)) {
@@ -28,4 +27,5 @@ const createCandleTables = async (db) => {
     const {parsed: config} = configDotenv();
     const db = new Postgres(config)
     await createCandleTables(db)
+    console.log('complete migrate')
 }()).catch(console.error)

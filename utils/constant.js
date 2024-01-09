@@ -12,12 +12,15 @@ export const CANDLES = {
         value: 1,
         ms: minMs,
         isRegular: true,
+        sqlite: {
+            unit: 'Min'
+        },
         questDB: {
             bithumb: {
                 sampleBy: '1m',
                 sampleByBase: '1m',
             },
-            partitionBy: 'DAY',
+            partitionBy: 'WEEK',
         }
     },
     '3m': {
@@ -25,6 +28,9 @@ export const CANDLES = {
         value: 3,
         ms: minMs * 3,
         isRegular: true,
+        sqlite: {
+            unit: 'Min3'
+        },
         questDB: {
             bithumb: {
                 sampleBy: '3m',
@@ -38,6 +44,9 @@ export const CANDLES = {
         value: 5,
         ms: minMs * 5,
         isRegular: true,
+        sqlite: {
+            unit: 'Min5'
+        },
         questDB: {
             bithumb: {
                 sampleBy: '5m',
@@ -51,6 +60,9 @@ export const CANDLES = {
         value: 10,
         ms: minMs * 10,
         isRegular: true,
+        sqlite: {
+            unit: 'Min10'
+        },
         questDB: {
             bithumb: {
                 sampleBy: '10m',
@@ -64,6 +76,9 @@ export const CANDLES = {
         value: 15,
         ms: minMs * 15,
         isRegular: true,
+        sqlite: {
+            unit: 'Min15'
+        },
         questDB: {
             bithumb: {
                 sampleBy: '15m',
@@ -77,6 +92,9 @@ export const CANDLES = {
         value: 30,
         ms: minMs * 30,
         isRegular: true,
+        sqlite: {
+            unit: 'Min30'
+        },
         questDB: {
             bithumb: {
                 sampleBy: '30m',
@@ -90,6 +108,9 @@ export const CANDLES = {
         value: 1,
         ms: hourMs,
         isRegular: true,
+        sqlite: {
+            unit: 'Hour'
+        },
         questDB: {
             bithumb: {
                 sampleBy: '1h',
@@ -114,6 +135,9 @@ export const CANDLES = {
         value: 4,
         ms: hourMs * 4,
         isRegular: true,
+        sqlite: {
+            unit: 'Hour4'
+        },
         questDB: {
             bithumb: {
                 sampleBy: '4h',
@@ -149,6 +173,9 @@ export const CANDLES = {
         value: 1,
         ms: dayMs,
         isRegular: true,
+        sqlite: {
+            unit: 'Day'
+        },
         questDB: {
             bithumb: {
                 sampleBy: '1d',
@@ -162,6 +189,9 @@ export const CANDLES = {
         value: 1,
         ms: weekMs,
         isRegular: false,
+        sqlite: {
+            unit: 'Week'
+        },
         questDB: {
             bithumb: {
                 sampleBy: '7d',
