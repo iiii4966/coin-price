@@ -8,11 +8,11 @@ export class Quest {
     port;
     bufferSize;
 
-    constructor({host, port, bufferSize} = {host: 'localhost', port: 9009, bufferSize: 8192}) {
-        this.bufferSize = bufferSize;
-        this.host = host;
-        this.port = port;
-        this.client = new Sender({bufferSize});
+    constructor(options = {}) {
+        this.host = options.DB_HOST;
+        this.port = options.QUEST_DB_PORT;
+        this.bufferSize = options.bufferSize ?? 8192;
+        this.client = new Sender({bufferSize: this.bufferSize});
     }
 
     async connect(){

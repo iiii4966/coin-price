@@ -5,7 +5,7 @@ import {Postgres} from "../db/postgres.js";
 
 const bootstrap = async () => {
     const {parsed: config} = configDotenv()
-    const writer = new Quest();
+    const writer = new Quest(config);
     await bithumb.collectCandleHistory(writer);
 
     const batchWriter = new Postgres(config);

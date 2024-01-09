@@ -6,7 +6,7 @@ import {Postgres} from "../db/postgres.js";
 const bootstrap = async () => {
     const {parsed: config} = configDotenv()
 
-    const writer = new Quest();
+    const writer = new Quest(config);
     const reader = new Postgres(config);
 
     await bithumb.collect(writer, reader);
