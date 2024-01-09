@@ -1,4 +1,5 @@
 import {CANDLES} from "../../utils/constant.js";
+import {sleep} from "../../utils/utils.js";
 
 
 export class CoinMeerkatSqliteExporter {
@@ -18,30 +19,47 @@ export class CoinMeerkatSqliteExporter {
         return {market: this.exchange.toUpperCase(), tms: tms.getTime(), code, op, hp, lp, cp, tv}
     }
 
-    async loadCandleHistory(){
-        const bulkInsertStatements = this.sqliteDB.prepareCandleBulkInsert()
-        for (const unit of this.candleUnits) {
-            const query = `
-                SELECT 
-                  timestamp,
-                  symbol,
-                  open, 
-                  high, 
-                  low, 
-                  close, 
-                  volume 
-                FROM ${this.exchange}_candle_${unit}  
-                WHERE symbol LIKE '%KRW'
-            `
-            const {rows} = await this.coinDB.query(query);
-            const convertedRows = rows.map((row) => {
-                return this.convertExportData(row)
-            })
+    async fetchSymbols(){
+        const sql = `
+            SELECT DISTINCT symbol FROM bithumb_candle_1m WHERE symbol LIKE '%KRW' ORDER BY symbol;
+        `
+        const {rows} = await this.coinDB.query(sql);
+        return rows;
+    }
 
-            const exportUnit = CANDLES[unit].sqlite.unit;
-            const bulkInsert = bulkInsertStatements[exportUnit];
-            bulkInsert(convertedRows)
-            console.log(`load ${unit} candle history`, rows.length)
+    async loadCandleHistory(limit = 2000){
+        const symbols = await this.fetchSymbols();
+
+        const bulkInsertStatements = this.sqliteDB.prepareCandleBulkInsert()
+
+        for (const {symbol} of symbols) {
+            for (const unit of this.candleUnits) {
+                const sql = `
+                    SELECT 
+                      timestamp,
+                      symbol,
+                      open, 
+                      high, 
+                      low, 
+                      close, 
+                      volume 
+                    FROM ${this.exchange}_candle_${unit}  
+                    WHERE symbol = '${symbol}'
+                    ORDER BY timestamp DESC
+                    LIMIT ${limit}
+                `
+                const {rows} = await this.coinDB.query(sql);
+                const convertedRows = rows.map((row) => {
+                    return this.convertExportData(row)
+                })
+
+                const exportUnit = CANDLES[unit].sqlite.unit;
+                const bulkInsert = bulkInsertStatements[exportUnit];
+                bulkInsert(convertedRows)
+                console.log(`load ${symbol} ${unit} candle history`, rows.length)
+                await sleep(10)
+            }
+
         }
 
         console.log('complete candle history')

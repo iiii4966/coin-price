@@ -27,5 +27,5 @@ const createCandleTables = async (db) => {
     const {parsed: config} = configDotenv();
     const db = new Postgres(config)
     await createCandleTables(db)
-    console.log('complete migrate')
+    console.log('complete coin db migrate')
 }()).catch(console.error)
