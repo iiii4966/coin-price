@@ -53,12 +53,7 @@ const logCheckSummary = (exchange, data) => {
 }
 
 
-(async function monitorCoinDBCandles() {
-    // 1. candle unit iteration - 1m, 10m, 1h
-    // 1. coin db 조회 - 최근 1000개
-    // 2. bithumb candle 조회
-    // 3. 비교
-    // 4. 시고저종이 다른 경우 파일에 기록
+(async function checkCoinDBCandles() {
     const {parsed: config} = configDotenv();
     const coinDB = new Postgres(config)
 
@@ -68,7 +63,7 @@ const logCheckSummary = (exchange, data) => {
     const summaries = {}
 
     const {symbols} = bithumb;
-    for (const symbol of symbols) {
+    for (const symbol of ['BTC/KRW']) {
         for (const unit of ['1m', '10m', '1h']) {
             const candles = await coinDB.fetchCandlesBySymbol(exchange, unit, symbol === 'ArchLoot/KRW' ? 'ALT/KRW' : symbol, 0, 1500, 'DESC');
 
@@ -108,6 +103,8 @@ const logCheckSummary = (exchange, data) => {
                     diffCandles.diff.push(diff)
                 }
             });
+
+            // logCheckCandles(exchange, symbol, unit, diffCandles)
 
             const summary = {
                 unit,

@@ -1,5 +1,5 @@
 import {CANDLES} from "../../utils/constant.js";
-import {sleep} from "../../utils/utils.js";
+import {getCandleTimeRange, sleep} from "../../utils/utils.js";
 
 
 export class CoinMeerkatSqliteExporter {
@@ -66,9 +66,13 @@ export class CoinMeerkatSqliteExporter {
     }
 
     async updateLatestCandles(){
+        const now = new Date();
         const bulkInsertStatements = this.sqliteDB.prepareCandleBulkInsert()
 
         for (const unit of this.candleUnits) {
+            let {start} = getCandleTimeRange(now.getTime(), unit);
+            start -= CANDLES[unit].ms
+
             const query = `
                 SELECT
                     timestamp,
@@ -79,8 +83,7 @@ export class CoinMeerkatSqliteExporter {
                     close,
                     volume,
                 FROM ${this.exchange}_candle_${unit}
-                WHERE symbol LIKE '%KRW'
-                LATEST ON timestamp PARTITION BY symbol;
+                WHERE symbol LIKE '%KRW' AND timestamp >= ${start * 1000}
             `
 
             const {rows} = await this.coinDB.query(query);
@@ -91,7 +94,7 @@ export class CoinMeerkatSqliteExporter {
             const exportUnit = CANDLES[unit].sqlite.unit;
             const bulkInsert = bulkInsertStatements[exportUnit];
             bulkInsert(convertedRows)
-            console.log(`update latest ${unit} candle`, rows.length)
+            console.log(`update latest ${unit} candle:`, rows.length)
         }
     }
 }
