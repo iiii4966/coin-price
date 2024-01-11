@@ -66,11 +66,12 @@ export class CoinMeerkatSqliteExporter {
     }
 
     async updateLatestCandles(){
-        const now = new Date();
+        console.time('t')
+        const nowTms = new Date().getTime();
         const bulkInsertStatements = this.sqliteDB.prepareCandleBulkInsert()
 
         for (const unit of this.candleUnits) {
-            let {start} = getCandleTimeRange(now.getTime(), unit);
+            let {start} = getCandleTimeRange(nowTms, unit);
             start -= CANDLES[unit].ms
 
             const query = `
@@ -96,6 +97,8 @@ export class CoinMeerkatSqliteExporter {
             bulkInsert(convertedRows)
             console.log(`update latest ${unit} candle:`, rows.length)
         }
+
+        console.timeEnd('t')
     }
 }
 
