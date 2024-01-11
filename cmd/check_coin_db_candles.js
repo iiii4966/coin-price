@@ -33,7 +33,7 @@ const compare = (c1, c2) => {
         result.low = true
     } else if (Number(c1.volume.toFixed(4)) !== Number(c2.volume.toFixed(4))) {
         result.volume = true
-        result.volumeDiff = (Math.abs(c1.volume - c2.volume)).toFixed(8)
+        result.volumeDiff = Math.abs(c1.volume - c2.volume)
     }
     result.summary = Object.values(result).some(r => r)
     return result;
@@ -63,7 +63,7 @@ const logCheckSummary = (exchange, data) => {
     const summaries = {}
 
     const {symbols} = bithumb;
-    for (const symbol of ['BTC/KRW']) {
+    for (const symbol of symbols) {
         for (const unit of ['1m', '10m', '1h']) {
             const candles = await coinDB.fetchCandlesBySymbol(exchange, unit, symbol === 'ArchLoot/KRW' ? 'ALT/KRW' : symbol, 0, 1500, 'DESC');
 
@@ -90,7 +90,7 @@ const logCheckSummary = (exchange, data) => {
 
                 const bc = bithumbCandlesMap[c.timestamp.getTime()]
                 if (bc === undefined) {
-                    diffCandles.diff.push(diff)
+                    // diffCandles.diff.push(diff)
                     return
                 }
                 const result = compare(c, bc)
@@ -113,7 +113,8 @@ const logCheckSummary = (exchange, data) => {
                 apiCount: bithumbOHCLV.length,
                 percent: ((diffCandles.diff.length / candles.length) * 100).toFixed(2),
                 pricePercent: ((diffCandles.diff.filter(d => (d.open || d.high || d.low || d.close)).length / candles.length) * 100).toFixed(3),
-                volumePercent: ((diffCandles.diff.filter(d => d.volume).length / candles.length) * 100).toFixed(2)
+                volumePercent: ((diffCandles.diff.filter(d => d.volume).length / candles.length) * 100).toFixed(2),
+                maxVolumeDiff: Math.max(...diffCandles.diff.map(d => d.volumeDiff))
             }
 
             if (summaries[symbol]) {
