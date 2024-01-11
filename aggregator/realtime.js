@@ -141,7 +141,7 @@ export class CandleRealtimeAggregator {
         }
         await db.writeCandles(this.exchange, this.unit, insertCandles);
 
-        console.log(`bithumb insert ${this.unit} candles:`, insertSymbolCount);
+        console.log(`${this.exchange} insert ${this.unit} candles:`, insertSymbolCount);
         this.removeClosedCandle(closedCandles);
     }
 

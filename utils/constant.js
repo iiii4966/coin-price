@@ -20,6 +20,10 @@ export const CANDLES = {
                 sampleBy: '1m',
                 sampleByBase: '1m',
             },
+            upbit: {
+                sampleBy: '1m',
+                sampleByBase: '1m',
+            },
             partitionBy: 'WEEK',
         }
     },
@@ -33,6 +37,10 @@ export const CANDLES = {
         },
         questDB: {
             bithumb: {
+                sampleBy: '3m',
+                sampleByBase: '1m',
+            },
+            upbit: {
                 sampleBy: '3m',
                 sampleByBase: '1m',
             },
@@ -52,6 +60,10 @@ export const CANDLES = {
                 sampleBy: '5m',
                 sampleByBase: '1m',
             },
+            upbit: {
+                sampleBy: '5m',
+                sampleByBase: '1m',
+            },
             partitionBy: 'MONTH',
         }
     },
@@ -65,6 +77,10 @@ export const CANDLES = {
         },
         questDB: {
             bithumb: {
+                sampleBy: '10m',
+                sampleByBase: '1m',
+            },
+            upbit: {
                 sampleBy: '10m',
                 sampleByBase: '1m',
             },
@@ -84,6 +100,10 @@ export const CANDLES = {
                 sampleBy: '15m',
                 sampleByBase: '1m',
             },
+            upbit: {
+                sampleBy: '15m',
+                sampleByBase: '1m',
+            },
             partitionBy: 'MONTH',
         }
     },
@@ -100,6 +120,10 @@ export const CANDLES = {
                 sampleBy: '30m',
                 sampleByBase: '15m',
             },
+            upbit: {
+                sampleBy: '30m',
+                sampleByBase: '1m',
+            },
             partitionBy: 'YEAR',
         }
     },
@@ -115,6 +139,10 @@ export const CANDLES = {
             bithumb: {
                 sampleBy: '1h',
                 sampleByBase: '15m',
+            },
+            upbit: {
+                sampleBy: '1h',
+                sampleByBase: '1m',
             },
             partitionBy: 'YEAR',
         }
@@ -140,6 +168,10 @@ export const CANDLES = {
         },
         questDB: {
             bithumb: {
+                sampleBy: '4h',
+                sampleByBase: '1h',
+            },
+            upbit: {
                 sampleBy: '4h',
                 sampleByBase: '1h',
             },
@@ -181,6 +213,10 @@ export const CANDLES = {
                 sampleBy: '1d',
                 sampleByBase: '1h',
             },
+            upbit: {
+                sampleBy: '1d',
+                sampleByBase: '1h',
+            },
             partitionBy: 'YEAR',
         }
     },
@@ -194,6 +230,10 @@ export const CANDLES = {
         },
         questDB: {
             bithumb: {
+                sampleBy: '7d',
+                sampleByBase: '1d',
+            },
+            upbit: {
                 sampleBy: '7d',
                 sampleByBase: '1d',
             },

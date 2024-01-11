@@ -99,7 +99,7 @@ export class Bithumb extends bithumbRest {
 
         let tradeCachedArray = this.safeValue(this.trades, symbol);
         if (tradeCachedArray === undefined) {
-            const limit = this.safeInteger(this.options, 'tradesLimit', 500);
+            const limit = this.safeInteger(this.options, 'tradesLimit', 1000);
             tradeCachedArray = new ArrayCache(limit);
             this.trades[symbol] = tradeCachedArray;
         }
@@ -179,70 +179,6 @@ export class Bithumb extends bithumbRest {
     }
 }
 
-export const aggregateRealtimeCandles = async (db) => {
-    const now = new Date();
-
-    const bithumb = new Bithumb();
-    await bithumb.loadMarkets();
-    const exchange = bithumb.name.toLowerCase();
-
-    const minBaseAggregationCandles = Object.entries(CANDLES).filter((candle) => {
-        const [unit, {questDB}] = candle;
-        const {sampleByBase} = questDB[exchange];
-        return unit !== '1m' && sampleByBase === '1m';
-    });
-    const minBaseAggregations = minBaseAggregationCandles.map(async (candle) => {
-        const [unit, _] = candle;
-        const options = {exchange, unit}
-        const aggregator = new RegularTimeCandleBatchAggregator(options);
-        return aggregator.aggregateLatest(db, now)
-    })
-    await Promise.all(minBaseAggregations);
-    console.log(`aggregate bithumb 1m base candles`);
-
-    const min15BaseAggregationCandles = Object.entries(CANDLES).filter((candle) => {
-        const [_, {questDB}] = candle;
-        const {sampleByBase} = questDB[exchange];
-        return sampleByBase === '15m';
-    });
-    const min15BaseAggregations = min15BaseAggregationCandles.map(async (candle) => {
-        const [unit, _] = candle;
-        const options = {exchange, unit, timezone: 'UTC'}
-        const aggregator = new RegularTimeCandleBatchAggregator(options);
-        return aggregator.aggregateLatest(db, now)
-    });
-    await Promise.all(min15BaseAggregations);
-    console.log(`aggregate bithumb 15m base candles`);
-
-    const hourBaseAggregationCandles = Object.entries(CANDLES).filter((candle) => {
-        const [_, {questDB}] = candle;
-        const {sampleByBase} = questDB[exchange];
-        return sampleByBase === '1h';
-    });
-    const hourBaseAggregations = hourBaseAggregationCandles.map(async (candle) => {
-        const [unit, _] = candle;
-        const options = {exchange, unit, timezone: 'UTC'}
-        const aggregator = new RegularTimeCandleBatchAggregator(options);
-        return aggregator.aggregateLatest(db, now)
-    });
-    await Promise.all(hourBaseAggregations);
-    console.log(`aggregate bithumb 1h base candles`);
-
-    const dayBaseAggregationCandles = Object.entries(CANDLES).filter((candle) => {
-        const [_, {questDB}] = candle;
-        const {sampleByBase} = questDB[exchange];
-        return sampleByBase === '1d';
-    });
-    const dayBaseAggregations = dayBaseAggregationCandles.map(async (candle) => {
-        const [unit, _] = candle;
-        const options = {exchange, unit, timezone: 'UTC'}
-        const aggregator = new WeekCandleBatchAggregator(options);
-        return aggregator.aggregateLatest(db, now);
-    })
-    await Promise.all(dayBaseAggregations);
-    console.log(`aggregate bithumb 1d base candles`);
-}
-
 export const aggregateCandleHistory = async (db) => {
     console.log(`start aggregate bithumb candle history`)
 
@@ -292,13 +228,13 @@ export const collectCandleHistory = async (db) => {
 
     for (const symbol of symbols) {
         const internalSymbol = bithumb.toStandardSymbol(symbol);
-        for (const [timeframe, bithumbTimeframe] of Object.entries(bithumb.timeframes)) {
+        for (const [timeframe, _] of Object.entries(bithumb.timeframes)) {
             // 빗썸의 1일 캔들은 한국시간 기준 00시 이므로 UTC 기준과 달라 수집하지 않음
             if (CANDLES[timeframe] === undefined || timeframe === '1d') {
                 continue
             }
 
-            const candles = await bithumb.fetchOHLCV(symbol, bithumbTimeframe);
+            const candles = await bithumb.fetchOHLCV(symbol, timeframe);
             const parsedCandles = candles.map(
                 ([tms, open, high, low, close, volume], idx) => {
                     let start;
@@ -328,7 +264,7 @@ export const collectCandleHistory = async (db) => {
     console.log(`complete collect bithumb candle history`)
 }
 
-export const collect = async (writer, reader) => {
+export const collect1mCandle = async (writer, reader) => {
     const bithumb = new Bithumb();
     await bithumb.loadMarkets();
     setInterval(() => {bithumb.loadMarkets(true).catch(console.error)}, 1000 * 60 * 60);
