@@ -73,7 +73,7 @@ export class CoinMeerkatSqliteExporter {
         for (const unit of this.candleUnits) {
             let {start} = getCandleTimeRange(nowTms, unit);
             start -= CANDLES[unit].ms
-            console.time(unit)
+
             const query = `
                 SELECT
                     timestamp,
@@ -86,8 +86,9 @@ export class CoinMeerkatSqliteExporter {
                 FROM ${this.exchange}_candle_${unit}
                 WHERE symbol LIKE '%KRW' AND timestamp >= ${start * 1000}
             `
-
+            console.time('fetch-' + unit)
             const {rows} = await this.coinDB.query(query);
+            console.timeEnd('fetch-' + unit)
             const convertedRows = rows.map((row) => {
                 return this.convertExportData(row)
             })
@@ -98,7 +99,6 @@ export class CoinMeerkatSqliteExporter {
             bulkInsert(convertedRows)
             console.timeEnd(unit + '-' + 'sqlite')
             console.log(`update latest ${unit} candle:`, rows.length)
-            console.timeEnd(unit)
         }
         console.timeEnd('t')
     }
