@@ -73,7 +73,7 @@ export class CoinMeerkatSqliteExporter {
         for (const unit of this.candleUnits) {
             let {start} = getCandleTimeRange(nowTms, unit);
             start -= CANDLES[unit].ms
-
+            console.time(unit)
             const query = `
                 SELECT
                     timestamp,
@@ -96,8 +96,8 @@ export class CoinMeerkatSqliteExporter {
             const bulkInsert = bulkInsertStatements[exportUnit];
             bulkInsert(convertedRows)
             console.log(`update latest ${unit} candle:`, rows.length)
+            console.timeEnd(unit)
         }
-
         console.timeEnd('t')
     }
 }
