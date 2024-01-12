@@ -94,7 +94,9 @@ export class CoinMeerkatSqliteExporter {
 
             const exportUnit = CANDLES[unit].sqlite.unit;
             const bulkInsert = bulkInsertStatements[exportUnit];
+            console.time(unit + '-' + 'sqlite')
             bulkInsert(convertedRows)
+            console.timeEnd(unit + '-' + 'sqlite')
             console.log(`update latest ${unit} candle:`, rows.length)
             console.timeEnd(unit)
         }
