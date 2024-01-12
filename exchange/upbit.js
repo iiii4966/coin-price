@@ -1,13 +1,51 @@
 import {pro} from 'ccxt';
 import {CandleRealtimeAggregator} from "../aggregator/realtime.js";
-import {sleep} from "../utils/utils.js";
+import {getCandleTimeRange, sleep} from "../utils/utils.js";
 import {CANDLES, minMs, utcHourMs} from "../utils/constant.js";
+import {parse} from "dotenv";
 
 export class Upbit extends pro.upbit {
-    internalSymbols = [];
+    marketSymbols = [];
 
-    getInternalSymbols() {
+    describe() {
+        return this.deepExtend(super.describe(), {
+            'timeframes': {
+                '1m': 'minutes',
+                '3m': 'minutes',
+                '5m': 'minutes',
+                '15m': 'minutes',
+                '30m': 'minutes',
+                '10m': 'minutes',
+                '1h': 'minutes',
+                '4h': 'minutes',
+                '1d': 'days',
+                '1w': 'weeks',
+                '1M': 'months',
+            },
+        });
+    }
+
+    marketSymbolToStandard(symbol){
+        const [unit, s] = symbol.split('-')
+        return `${s}/${unit}`
+    }
+
+    toStandardSymbol(symbol){
+        const {baseId, quoteId} = this.market(symbol);
+        return `${baseId}/${quoteId}`
+    }
+
+    toMarketSymbol(symbol){
+        const {baseId, quoteId} = this.market(symbol);
+        return `${quoteId}-${baseId}`
+    }
+
+    filterSymbols() {
         return this.symbols.filter(s => s.split('/')[1] === 'KRW')
+    }
+
+    getMarketSymbols() {
+        return this.filterSymbols().map(s => this.toMarketSymbol(s))
     }
 
     async loadMarkets(reload = false, params = {}) {
@@ -15,7 +53,7 @@ export class Upbit extends pro.upbit {
             this.reloadingMarkets = true;
             this.marketsLoading = this.loadMarketsHelper(reload, params).then((resolved) => {
                 this.reloadingMarkets = false;
-                this.internalSymbols = this.getInternalSymbols()
+                this.marketSymbols = this.getMarketSymbols()
                 return resolved;
             }, (error) => {
                 this.reloadingMarkets = false;
@@ -25,21 +63,27 @@ export class Upbit extends pro.upbit {
         return this.marketsLoading;
     }
 
+    parseTrade(trade, market = undefined) {
+        const parseTrade = super.parseTrade(trade, market);
+        parseTrade.symbol = this.marketSymbolToStandard(parseTrade.info.code);
+        parseTrade.info = undefined;
+        return parseTrade
+    }
+
     async watchTradesForSymbols(symbols = [],
                                 since = undefined,
                                 limit = undefined){
-        const marketIds = this.marketIds(symbols);
         const request = [
             {
                 'ticket': this.uuid(),
             },
             {
                 'type': 'trade',
-                'codes': marketIds,
+                'codes': symbols,
             },
         ];
 
-        const msgHashes = marketIds.map(s => 'trade' + ':' + s);
+        const msgHashes = symbols.map(s => 'trade' + ':' + s);
         const trades = await this.watchMultiple(this.urls['api']['ws'], msgHashes, request, msgHashes);
         if (this.newUpdates) {
             const first = this.safeValue(trades, 0);
@@ -49,30 +93,89 @@ export class Upbit extends pro.upbit {
         return this.filterBySinceLimit(trades, since, limit, 'timestamp', true);
     }
 
+    buildFetchOHLCVUrl(symbol, unit, to, limit){
+        let url = 'https://api.upbit.com/v1/candles/';
+        const apiUnit = this.timeframes[unit]
+        if (apiUnit === 'minutes') {
+            let interval;
+            if (unit === '1h') {
+                interval = 60
+            } else if (unit === '4h') {
+                interval = 240
+            } else {
+                interval = unit.slice(0, -1)
+            }
+            url += `minutes/${interval}`
+        } else {
+            url += apiUnit
+        }
+
+        return `${url}?market=${symbol}&to=${to}&count=${limit}`
+    }
+
+    parseRemainRequestCount(headers){
+        const remainReq = headers.get('remaining-req');
+        if (!remainReq) {
+            throw new Error('Not exist remaining-req header')
+        }
+        let [_, remainReqCountPerMinutes, remainReqCountPerSecond] = remainReq.split(' ')
+        const m = +remainReqCountPerMinutes.split('=')[1].slice(0, -1);
+        const s = +remainReqCountPerSecond.split('=')[1];
+        return {m, s};
+    }
+
+    /**
+     * 성능 문제로 cctx api 를 사용하지 않음
+     */
+    async fetchOHLCVByCount(symbol, unit, since, limit) {
+        const marketId = this.marketId(symbol)
+        const fetchLimit = limit < 200 ? limit : 200
+        let startTime = new Date().toISOString();
+        const candles = [];
+
+        while (candles.length < limit){
+            const url = this.buildFetchOHLCVUrl(marketId, unit, startTime, fetchLimit)
+            const resp = await fetch(url);
+
+            const {s} = this.parseRemainRequestCount(resp.headers);
+            if (resp.statusText === 'Too Many Requests' || s === 0) {
+                await sleep(1000)
+                continue
+            }
+
+            const data = await resp.json();
+            if (data.length === 0) {
+                break;
+            }
+
+            startTime = data[data.length - 1].candle_date_time_utc
+            candles.push(...data.map(d => this.parseOHLCV(d)))
+        }
+
+        return candles;
+    }
 }
 
 export const collect1mCandle = async (writer, reader) => {
     const upbit = new Upbit();
     await upbit.loadMarkets();
 
-    console.log('load markets:', upbit.internalSymbols.length);
+    console.log('load markets:', upbit.marketSymbols.length, JSON.stringify(upbit.marketSymbols));
 
     setInterval(async () => {
         await upbit.loadMarkets(true).catch(console.error)
-        console.log(upbit.internalSymbols.length)
+        console.log(upbit.marketSymbols.length, JSON.stringify(upbit.marketSymbols))
     }, 1000 * 60 * 60);
 
     const minAggregator = new CandleRealtimeAggregator(
         {unit: '1m', exchange: upbit.name.toLowerCase()}
     );
     await minAggregator.loadLatestCandles(reader)
-    setInterval(() => {
-        minAggregator.persist(writer).catch(console.error)
-    }, 1000 * 3);
+    setInterval(() => {minAggregator.persist(writer).catch(console.error)}, 1000 * 3);
 
     while (true) {
         try {
-            const trades = await upbit.watchTradesForSymbols(upbit.internalSymbols);
+            const trades = await upbit.watchTradesForSymbols(upbit.marketSymbols);
             for (const trade of trades) {
                 minAggregator.aggregate(trade);
             }
@@ -86,42 +189,26 @@ export const collect1mCandle = async (writer, reader) => {
 /**
  * 모든 종목 캔들 수집 시간: 30분
  */
-
-
 export const collectCandleHistory = async (db, count = 2000) => {
-    console.log(`start collect bithumb candle history\n`)
+    console.log(`start collect upbit candle history\n`)
 
     const upbit = new Upbit();
     const exchange = upbit.name.toLowerCase();
     await upbit.loadMarkets();
-    const fetchLimit = count < 200 ? count : 200
 
-    const {internalSymbols: symbols} = upbit;
-    for (const symbol of ['BTT/KRW']) {
+    const symbols = upbit.filterSymbols();
+    for (const symbol of symbols) {
         for (const timeframe of Object.keys(upbit.timeframes)) {
             if (timeframe === '1M') {
                 continue
             }
-
-            const collectCandles = [];
-            let since = undefined;
-            while (collectCandles.length < count) {
-                const candles = await upbit.fetchOHLCV(symbol, timeframe, since, fetchLimit);
-                if (candles.length === 0) {
-                    break
+            const collectCandles = await upbit.fetchOHLCVByCount(symbol, timeframe, 0, 2000);
+            await db.writeCandles(exchange, timeframe, collectCandles.map(
+                ([start, open, high, low, close, volume]) => {
+                    return {start, symbol: upbit.toStandardSymbol(symbol), open, high, low, close, volume};
                 }
-
-                since = candles[0][0] - CANDLES[timeframe].ms * fetchLimit;
-                candles.forEach(
-                    ([start, open, high, low, close, volume]) => {
-                        collectCandles.push({start, symbol, open, high, low, close, volume});
-                    }
-                )
-            }
-
-            const collectCount = collectCandles.length;
-            await db.writeCandles(exchange, timeframe, collectCandles)
-            console.log(`collect upbit ${symbol} ${timeframe} candle history:`, collectCount)
+            ))
+            console.log(`collect upbit ${symbol} ${timeframe} candle history:`, collectCandles.length)
         }
     }
 

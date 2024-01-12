@@ -6,7 +6,7 @@ import {CANDLES, utcHourMs} from "../utils/constant.js";
 import {RegularTimeCandleBatchAggregator, WeekCandleBatchAggregator} from "../aggregator/batch.js";
 
 export class Bithumb extends bithumbRest {
-    internalSymbols = [];
+    marketSymbols = [];
 
     describe() {
         return this.deepExtend(super.describe(), {
@@ -68,7 +68,7 @@ export class Bithumb extends bithumbRest {
             timestamp -= utcHourMs; // they report UTC + 9 hours, server in Korean timezone
         }
 
-        const symbol = this.internalToStandardSymbol(this.safeString(trade, 'symbol'));
+        const symbol = this.marketSymbolToStandard(this.safeString(trade, 'symbol'));
         let side = this.safeString(trade, 'buySellGb');
         side = (side === '1') ? 'buy' : 'sell';
         const priceString = this.safeString(trade, 'contPrice');
@@ -124,7 +124,7 @@ export class Bithumb extends bithumbRest {
         }
     }
 
-    internalToStandardSymbol(symbol){
+    marketSymbolToStandard(symbol){
         return symbol.replace('_', '/')
     }
 
@@ -133,13 +133,17 @@ export class Bithumb extends bithumbRest {
         return `${baseId}/${quoteId}`
     }
 
-    toInternalSymbol(symbol){
+    toMarketSymbol(symbol){
         const {baseId, quoteId} = this.market(symbol);
         return `${baseId}_${quoteId}`
     }
 
-    getInternalSymbols() {
-        return this.symbols.map((s) => this.toInternalSymbol(s))
+    filterSymbols() {
+        return this.symbols.filter(s => s.split('/')[1] === 'KRW')
+    }
+
+    getMarketSymbols() {
+        return this.filterSymbols().map((s) => this.toMarketSymbol(s))
     }
 
     async watchTradesForSymbols(symbols = [],
@@ -168,7 +172,7 @@ export class Bithumb extends bithumbRest {
             this.reloadingMarkets = true;
             this.marketsLoading = this.loadMarketsHelper(reload, params).then((resolved) => {
                 this.reloadingMarkets = false;
-                this.internalSymbols = this.getInternalSymbols()
+                this.marketSymbols = this.getMarketSymbols()
                 return resolved;
             }, (error) => {
                 this.reloadingMarkets = false;
@@ -227,7 +231,7 @@ export const collectCandleHistory = async (db) => {
     const {symbols} = bithumb;
 
     for (const symbol of symbols) {
-        const internalSymbol = bithumb.toStandardSymbol(symbol);
+        const standardSymbol = bithumb.toStandardSymbol(symbol);
         for (const [timeframe, _] of Object.entries(bithumb.timeframes)) {
             // 빗썸의 1일 캔들은 한국시간 기준 00시 이므로 UTC 기준과 달라 수집하지 않음
             if (CANDLES[timeframe] === undefined || timeframe === '1d') {
@@ -253,11 +257,11 @@ export const collectCandleHistory = async (db) => {
                         const range = getCandleTimeRange(tms, timeframe)
                         start = range.start
                     }
-                    return {start, symbol: internalSymbol, open, high, low, close, volume, closed: true};
+                    return {start, symbol: standardSymbol, open, high, low, close, volume, closed: true};
                 }
             )
             await db.writeCandles(bithumb.name.toLowerCase(), timeframe, parsedCandles)
-            console.log(`collect ${internalSymbol} ${timeframe} candle history:`, candles.length)
+            console.log(`collect ${standardSymbol} ${timeframe} candle history:`, candles.length)
         }
     }
 
@@ -279,7 +283,7 @@ export const collect1mCandle = async (writer, reader) => {
 
     while (true) {
         try {
-            const trades = await bithumb.watchTradesForSymbols(bithumb.internalSymbols);
+            const trades = await bithumb.watchTradesForSymbols(bithumb.marketSymbols);
             for (const trade of trades) {
                 minAggregator.aggregate(trade);
             }

@@ -62,7 +62,7 @@ export class CoinMeerkatSqliteExporter {
 
         }
 
-        console.log('complete candle history')
+        console.log(`complete ${this.exchange} candle history`)
     }
 
     async updateLatestCandles(){
@@ -111,6 +111,32 @@ export class BithumbSqliteExporter extends CoinMeerkatSqliteExporter{
             market: this.exchange.toUpperCase(),
             tms: tms.getTime(),
             code: code.replace('/', '_'),
+            op,
+            hp,
+            lp,
+            cp,
+            tv
+        }
+    }
+}
+
+export class UpbitSqliteExporter extends CoinMeerkatSqliteExporter{
+
+    constructor(options = {}) {
+        options.exchange = 'upbit';
+        super(options)
+    }
+
+    formatCode (code) { // BTC/KRW
+        const [coin, unit] = code.split('/')
+        return `${unit}-${coin}`
+    }
+
+    convertExportData({timestamp: tms, symbol: code, open: op, high: hp, low: lp, close: cp, volume: tv}){
+        return {
+            market: this.exchange.toUpperCase(),
+            tms: tms.getTime(),
+            code: this.formatCode(code),
             op,
             hp,
             lp,

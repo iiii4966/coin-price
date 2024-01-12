@@ -28,4 +28,4 @@ const createCandleTables = async (db, exchange) => {
     await createCandleTables(db, 'upbit')
     console.log('complete coin db migrate')
     await db.close();
-}()).catch(console.error)
+}().catch(console.error))
