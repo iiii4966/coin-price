@@ -1,8 +1,6 @@
 import {pro} from 'ccxt';
 import {CandleRealtimeAggregator} from "../aggregator/realtime.js";
-import {getCandleTimeRange, sleep} from "../utils/utils.js";
-import {CANDLES, minMs, utcHourMs} from "../utils/constant.js";
-import {parse} from "dotenv";
+import {sleep} from "../utils/utils.js";
 
 export class Upbit extends pro.upbit {
     marketSymbols = [];
@@ -64,10 +62,12 @@ export class Upbit extends pro.upbit {
     }
 
     parseTrade(trade, market = undefined) {
-        const parseTrade = super.parseTrade(trade, market);
-        parseTrade.symbol = this.marketSymbolToStandard(parseTrade.info.code);
-        parseTrade.info = undefined;
-        return parseTrade
+        const parsed = super.parseTrade(trade, market);
+        parsed.symbol = this.marketSymbolToStandard(parsed.info.code);
+        parsed.timestamp = this.safeInteger(trade, 'trade_timestamp');
+        parsed.datetime = this.iso8601(parsed.timestamp)
+        parsed.info = undefined;
+        return parsed
     }
 
     async watchTradesForSymbols(symbols = [],
@@ -83,8 +83,9 @@ export class Upbit extends pro.upbit {
             },
         ];
 
-        const msgHashes = symbols.map(s => 'trade' + ':' + s);
+        const msgHashes = symbols.map(s => 'trade:' + s);
         const trades = await this.watchMultiple(this.urls['api']['ws'], msgHashes, request, msgHashes);
+
         if (this.newUpdates) {
             const first = this.safeValue(trades, 0);
             const tradeSymbol = this.safeString(first, 'symbol');
@@ -137,8 +138,7 @@ export class Upbit extends pro.upbit {
             const url = this.buildFetchOHLCVUrl(marketId, unit, startTime, fetchLimit)
             const resp = await fetch(url);
 
-            const {s} = this.parseRemainRequestCount(resp.headers);
-            if (resp.statusText === 'Too Many Requests' || s === 0) {
+            if (resp.statusText === 'Too Many Requests') {
                 await sleep(1000)
                 continue
             }
@@ -150,6 +150,11 @@ export class Upbit extends pro.upbit {
 
             startTime = data[data.length - 1].candle_date_time_utc
             candles.push(...data.map(d => this.parseOHLCV(d)))
+
+            const {s} = this.parseRemainRequestCount(resp.headers);
+            if (s === 0) {
+                await sleep(1000)
+            }
         }
 
         return candles;

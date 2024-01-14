@@ -1,7 +1,7 @@
 import {configDotenv} from "dotenv";
 import {Postgres} from "../db/postgres.js";
 import {CronJob} from "cron";
-import {aggregateRealtimeCandles} from "../exchange/aggregate_candles.js";
+import {aggregateRealtimeCandles} from "../aggregator/batch.js";
 
 const bootstrap = async () => {
     const {parsed: config} = configDotenv();

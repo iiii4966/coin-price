@@ -78,7 +78,7 @@ const logCheckSummary = (exchange, data) => {
 
     const summaries = {}
 
-    for (const symbol of symbols) {
+    for (const symbol of ['BTT/KRW']) {
         for (const unit of ['1m']) {
             const candles = await coinDB.fetchCandlesBySymbol(exchangeName, unit, exchange.toStandardSymbol(symbol), 0, 1000, 'DESC');
             if (candles.length === 0) {

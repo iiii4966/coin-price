@@ -109,8 +109,8 @@ export class Bithumb extends bithumbRest {
             tradeCachedArray.append(trade)
         }
 
-        const messageHash = 'trade:' + symbol;
-        client.resolve(tradeCachedArray, messageHash);
+        const msgHash = 'trade:' + symbol;
+        client.resolve(tradeCachedArray, msgHash);
     }
 
     handleMessage(client, message) {
@@ -156,7 +156,9 @@ export class Bithumb extends bithumbRest {
             symbols,
         }
 
-        const msgHashes = symbols.map(s => 'trade' + ':' + s);
+
+        const msgHashes = symbols.map(s => 'trade:' + s);
+
         const trades = await this.watchMultiple(url, msgHashes, request, msgHashes);
 
         if (this.newUpdates) {
@@ -223,12 +225,12 @@ export const aggregateCandleHistory = async (db) => {
  * 모든 종목 캔들 수집 시간: 30분
  */
 export const collectCandleHistory = async (db) => {
-    console.log(`start collect bithumb candle history`)
-
     const bithumb = new Bithumb();
     await bithumb.loadMarkets();
 
-    const {symbols} = bithumb;
+    const symbols = bithumb.filterSymbols();
+
+    console.log(`start collect bithumb candle history:`, symbols.length)
 
     for (const symbol of symbols) {
         const standardSymbol = bithumb.toStandardSymbol(symbol);
@@ -271,7 +273,13 @@ export const collectCandleHistory = async (db) => {
 export const collect1mCandle = async (writer, reader) => {
     const bithumb = new Bithumb();
     await bithumb.loadMarkets();
-    setInterval(() => {bithumb.loadMarkets(true).catch(console.error)}, 1000 * 60 * 60);
+
+    console.log('load markets:', bithumb.marketSymbols.length, JSON.stringify(bithumb.marketSymbols));
+
+    setInterval(() => {
+        bithumb.loadMarkets(true).catch(console.error);
+        console.log('load markets:', bithumb.marketSymbols.length, JSON.stringify(bithumb.marketSymbols));
+    }, 1000 * 60 * 60);
 
     const minAggregator = new CandleRealtimeAggregator(
         {unit: '1m', exchange: bithumb.name.toLowerCase()}

@@ -2,6 +2,7 @@ import * as bithumb from "../exchange/bithumb.js";
 import {configDotenv} from "dotenv";
 import {Postgres} from "../db/postgres.js";
 import {CronJob} from "cron";
+import {aggregateRealtimeCandles} from "../aggregator/batch.js";
 
 const bootstrap = async () => {
     const {parsed: config} = configDotenv();
@@ -10,7 +11,7 @@ const bootstrap = async () => {
     const job = CronJob.from({
         cronTime: '*/3 * * * * *',
         onTick: async () => {
-            await bithumb.aggregateRealtimeCandles(db);
+            await aggregateRealtimeCandles(db, 'bithumb');
         },
     });
 

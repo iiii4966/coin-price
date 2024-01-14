@@ -21,7 +21,7 @@ export class CoinMeerkatSqliteExporter {
 
     async fetchSymbols(){
         const sql = `
-            SELECT DISTINCT symbol FROM bithumb_candle_1m WHERE symbol LIKE '%KRW' ORDER BY symbol;
+            SELECT DISTINCT symbol FROM bithumb_candle_1m ORDER BY symbol;
         `
         const {rows} = await this.coinDB.query(sql);
         return rows;
@@ -83,7 +83,7 @@ export class CoinMeerkatSqliteExporter {
                     close,
                     volume,
                 FROM ${this.exchange}_candle_${unit}
-                WHERE symbol LIKE '%KRW' AND timestamp >= ${start * 1000}
+                WHERE timestamp >= ${start * 1000}
             `
             const {rows} = await this.coinDB.query(query);
             const convertedRows = rows.map((row) => {

@@ -100,7 +100,7 @@ export class CandleRealtimeAggregator {
         const candles = await db.fetchLatestCandles(this.exchange, this.unit)
         console.log(`load ${this.exchange} ${this.unit} candles:`, candles.length);
 
-        for (const {symbol, open, high, low, close, volume, timestamp, closed} of candles) {
+        for (const {symbol, open, high, low, close, volume, timestamp} of candles) {
             const tms = Number(timestamp)
             const candle = {
                 start: tms,
@@ -112,7 +112,6 @@ export class CandleRealtimeAggregator {
                 low,
                 close,
                 volume,
-                closed,
             }
             this.candles[symbol] = {[timestamp]: candle}
         }
