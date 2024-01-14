@@ -21,7 +21,7 @@ export class CoinMeerkatSqliteExporter {
 
     async fetchSymbols(){
         const sql = `
-            SELECT DISTINCT symbol FROM bithumb_candle_1m ORDER BY symbol;
+            SELECT DISTINCT symbol FROM ${this.exchange}_candle_1m ORDER BY symbol;
         `
         const {rows} = await this.coinDB.query(sql);
         return rows;
@@ -93,7 +93,7 @@ export class CoinMeerkatSqliteExporter {
             const exportUnit = CANDLES[unit].sqlite.unit;
             const bulkInsert = bulkInsertStatements[exportUnit];
             bulkInsert(convertedRows)
-            console.log(`update latest ${unit} candle:`, rows.length)
+            console.log(`update latest ${this.exchange} ${unit} candle:`, rows.length)
         }
     }
 }
