@@ -46,7 +46,7 @@ export class UpbitRealtimeAggregator extends CandleRealtimeAggregator {
             candle.close = price;
             candle.lastTradeTms = tradeTms;
         } else if (lastTradeTms === tradeTms) {
-            if (+lastSequentialId < +sequentialId) {
+            if (lastSequentialId < sequentialId) {
                 candle.close = price
                 candle.lastSequentialId = sequentialId
             }
