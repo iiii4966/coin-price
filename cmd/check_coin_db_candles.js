@@ -60,6 +60,7 @@ const logCheckSummary = (exchange, data) => {
 
     const exchangeInArg = process.argv[2]
     const symbolInArg = process.argv[3]
+    const candleUnitsInArg = process.argv[4]
 
     let exchange;
     let fetchOHLCVFunction;
@@ -80,7 +81,7 @@ const logCheckSummary = (exchange, data) => {
     const summaries = {}
 
     for (const symbol of symbols) {
-        for (const unit of ['1m']) {
+        for (const unit of [candleUnitsInArg]) {
             const candles = await coinDB.fetchCandlesBySymbol(exchangeName, unit, exchange.toStandardSymbol(symbol), 0, 1000, 'DESC');
             if (candles.length === 0) {
                 console.log(`${exchangeName} ${symbol} ${unit} candle empty`)

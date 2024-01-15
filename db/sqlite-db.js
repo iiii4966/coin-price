@@ -14,6 +14,16 @@ export class SqliteDB {
         this.db.exec('PRAGMA journal_size_limit = 1073741824');
     }
 
+    deleteOldCandles(unit, oldestTms){
+        const result = this.db.prepare(`
+            DELETE 
+            FROM ${unit}Candle 
+            WHERE tms < ${oldestTms}
+        `
+        ).run();
+        return result.changes;
+    }
+
     prepareCandleInsert(){
         const statements = {}
         for (const unit of this.candleUnits) {
