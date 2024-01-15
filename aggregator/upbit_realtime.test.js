@@ -22,7 +22,7 @@ const mockdata = () => {
             id: sequential_id,
             timestamp: new Date(timestamp).getTime()
         }
-    }).reverse()
+    })
 }
 
 test('test upbit realtime aggregate', () => {
@@ -40,18 +40,18 @@ test('test upbit realtime aggregate', () => {
     const candle = minAggregator.getCandle('BTC/KRW', start)
 
     const result = {
-        timestamp: 1705287120000,
-        open: 58175000,
-        high: 58193000,
-        low: 58170000,
-        close: 58176000,
-        volume: 0.86351202
+        "timestamp": 1705305780000,
+        "open": 58547000,
+        "high": 58581000,
+        "low": 58537000,
+        "close": 58537000,
+        "volume": 1.20226056
     }
 
     expect(candle.start).toBe(result.timestamp);
-    expect(candle.firstTradeTms).toBe(1705287121690);
-    expect(candle.lastTradeTms).toBe(1705287178843);
-    expect(candle.lastSequentialId).toBe('17052871788430002');
+    expect(candle.firstTradeTms).toBe(1705305784301);
+    expect(candle.lastTradeTms).toBe(1705305838671);
+    expect(candle.lastSequentialId).toBe('17053058386710001');
     expect(candle.open).toBe(result.open);
     expect(candle.high).toBe(result.high);
     expect(candle.low).toBe(result.low);
