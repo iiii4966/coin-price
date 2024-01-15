@@ -59,6 +59,7 @@ const logCheckSummary = (exchange, data) => {
     const coinDB = new Postgres(config)
 
     const exchangeInArg = process.argv[2]
+    const symbolInArg = process.argv[3]
 
     let exchange;
     let fetchOHLCVFunction;
@@ -74,11 +75,11 @@ const logCheckSummary = (exchange, data) => {
 
     await exchange.loadMarkets()
     const exchangeName = exchange.name.toLowerCase()
-    const symbols = exchange.filterSymbols();
+    const symbols = symbolInArg !== undefined ? [symbolInArg] : exchange.filterSymbols();
 
     const summaries = {}
 
-    for (const symbol of ['BTT/KRW']) {
+    for (const symbol of symbols) {
         for (const unit of ['1m']) {
             const candles = await coinDB.fetchCandlesBySymbol(exchangeName, unit, exchange.toStandardSymbol(symbol), 0, 1000, 'DESC');
             if (candles.length === 0) {

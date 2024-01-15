@@ -1,6 +1,6 @@
 import {pro} from 'ccxt';
-import {CandleRealtimeAggregator} from "../aggregator/realtime.js";
 import {sleep} from "../utils/utils.js";
+import {UpbitRealtimeAggregator} from "../aggregator/upbit_realtime.js";
 
 export class Upbit extends pro.upbit {
     marketSymbols = [];
@@ -80,6 +80,7 @@ export class Upbit extends pro.upbit {
             {
                 'type': 'trade',
                 'codes': symbols,
+                'isOnlyRealtime': true,
             },
         ];
 
@@ -172,7 +173,7 @@ export const collect1mCandle = async (writer, reader) => {
         console.log(upbit.marketSymbols.length, JSON.stringify(upbit.marketSymbols))
     }, 1000 * 60 * 60);
 
-    const minAggregator = new CandleRealtimeAggregator(
+    const minAggregator = new UpbitRealtimeAggregator(
         {unit: '1m', exchange: upbit.name.toLowerCase()}
     );
     await minAggregator.loadLatestCandles(reader)
