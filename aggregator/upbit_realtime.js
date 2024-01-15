@@ -79,4 +79,29 @@ export class UpbitRealtimeAggregator extends CandleRealtimeAggregator {
         }
         this.setCandle(candle);
     }
+
+    async loadLatestCandles(db) {
+        const candles = await db.fetchLatestCandles(this.exchange, this.unit)
+        console.log(`load ${this.exchange} ${this.unit} candles:`, candles.length);
+
+        for (const {symbol, open, high, low, close, volume, timestamp} of candles) {
+            const tms = Number(timestamp)
+            const candle = {
+                start: tms,
+                end: tms + this.ms,
+                lastTradeTms: tms,
+                firstTradeTms: tms,
+                sequentialIds: new Set(),
+                lastSequentialId: tms,
+                symbol,
+                open,
+                high,
+                low,
+                close,
+                volume,
+            }
+            this.candles[symbol] = {[timestamp]: candle}
+            this.setLatestTms(symbol, tms)
+        }
+    }
 }
