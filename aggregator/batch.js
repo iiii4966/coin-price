@@ -39,6 +39,7 @@ export class RegularTimeCandleBatchAggregator {
             exchange: this.exchange, unit: this.unit, sampleBy, sampleByBase,
             timestamp: start, timezone: this.timezone
         }
+        // console.log(new Date(), new Date(params.timestamp), params)
         return db.aggregateLatestCandles(params)
     }
 }
@@ -114,7 +115,7 @@ export const aggregateRealtimeCandles = async (db, exchange) => {
     });
     const minBaseAggregations = minBaseAggregationCandles.map(async (candle) => {
         const [unit, _] = candle;
-        const options = {exchange, unit}
+        const options = {exchange, unit, timezone: 'UTC'}
         const aggregator = new RegularTimeCandleBatchAggregator(options);
         return aggregator.aggregateLatest(db, now)
     })

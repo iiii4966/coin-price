@@ -19,7 +19,7 @@ const bootstrap = async () => {
     });
 
     const job = CronJob.from({
-        cronTime: '*/5 * * * * *',
+        cronTime: '*/10 * * * * *',
         onTick: async () => {
             await Promise.all([
                 bithumbExporter.updateLatestCandles(),

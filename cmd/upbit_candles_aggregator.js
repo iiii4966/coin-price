@@ -8,7 +8,7 @@ const bootstrap = async () => {
     const db = new Postgres(config);
 
     const job = CronJob.from({
-        cronTime: '*/3 * * * * *',
+        cronTime: '*/5 * * * * *',
         onTick: async () => {
             await aggregateRealtimeCandles(db, 'upbit');
         },

@@ -122,7 +122,7 @@ export const CANDLES = {
             },
             upbit: {
                 sampleBy: '30m',
-                sampleByBase: '1m',
+                sampleByBase: '15m',
             },
             partitionBy: 'YEAR',
         }
@@ -142,7 +142,7 @@ export const CANDLES = {
             },
             upbit: {
                 sampleBy: '1h',
-                sampleByBase: '1m',
+                sampleByBase: '15m',
             },
             partitionBy: 'YEAR',
         }
