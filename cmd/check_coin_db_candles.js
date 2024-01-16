@@ -60,7 +60,7 @@ const logCheckSummary = (exchange, data) => {
 
     const exchangeInArg = process.argv[2]
     const symbolInArg = process.argv[3]
-    const candleUnitsInArg = process.argv[4] ? [process.argv[4]] : ['1m']
+    const candleUnitsInArg = process.argv[4] ? [process.argv[4]] : ['3m']
 
     let exchange;
     let fetchOHLCVFunction;
