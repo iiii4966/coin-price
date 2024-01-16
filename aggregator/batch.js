@@ -39,7 +39,6 @@ export class RegularTimeCandleBatchAggregator {
             exchange: this.exchange, unit: this.unit, sampleBy, sampleByBase,
             timestamp: start, timezone: this.timezone
         }
-        console.log(new Date(params.timestamp), params)
         return db.aggregateLatestCandles(params)
     }
 }

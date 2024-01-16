@@ -1,4 +1,5 @@
 import pg from 'pg';
+import fs from "fs";
 
 
 export class Postgres {
@@ -127,6 +128,26 @@ export class Postgres {
             WHERE ${timestamp * 1000} <= timestamp
             SAMPLE BY ${sampleBy} ${alignToQuery};
         `
+        if (unit === '3m') {
+            console.log(sql);
+            const result = await this.query(`
+                SELECT
+                  timestamp,
+                  symbol,
+                  first(open) open,
+                  max(high) high,
+                  min(low) low,
+                  last(close) close,
+                  nsum(volume) volume
+                FROM ${exchange}_candle_${sampleByBase}
+                WHERE ${timestamp * 1000} <= timestamp
+                SAMPLE BY ${sampleBy} ${alignToQuery};
+            `)
+            fs.appendFile(`${exchange}_aggregate_latest_candles`, sql + '\n', (err) => {if (err) throw err;})
+            fs.appendFile(`${exchange}_aggregate_latest_candles`, JSON.stringify(result.rows), (err) => {
+                if (err) throw err;
+            });
+        }
         return this.query(sql);
     }
 
