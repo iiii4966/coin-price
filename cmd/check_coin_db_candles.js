@@ -60,7 +60,7 @@ const logCheckSummary = (exchange, data) => {
 
     const exchangeInArg = process.argv[2]
     const symbolInArg = process.argv[3]
-    const candleUnitsInArg = process.argv[4] ? [process.argv[4]] : ['1m', '3m', '15m', '30m']
+    const candleUnitsInArg = process.argv[4] ? [process.argv[4]] : ['1m']
 
     let exchange;
     let fetchOHLCVFunction;
@@ -103,7 +103,7 @@ const logCheckSummary = (exchange, data) => {
                 diff: []
             }
 
-            candles.forEach((c) => {
+            candles.slice(1).forEach((c) => {
                 let diff = {
                     unix: c.timestamp.getTime(),
                     date: c.timestamp

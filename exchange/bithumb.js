@@ -4,6 +4,7 @@ import {getCandleTimeRange, sleep} from "../utils/utils.js";
 import {CandleRealtimeAggregator} from "../aggregator/realtime.js";
 import {CANDLES, utcHourMs} from "../utils/constant.js";
 import {RegularTimeCandleBatchAggregator, WeekCandleBatchAggregator} from "../aggregator/batch.js";
+import * as Sentry from "@sentry/node";
 
 export class Bithumb extends bithumbRest {
     marketSymbols = [];
@@ -297,7 +298,7 @@ export const collect1mCandle = async (writer, reader) => {
             }
         } catch (e) {
             console.error(e)
-            await sleep(10);
+            Sentry.captureException(e)
         }
     }
 }

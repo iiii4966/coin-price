@@ -1,6 +1,7 @@
 import {pro} from 'ccxt';
 import {sleep} from "../utils/utils.js";
 import {UpbitRealtimeAggregator} from "../aggregator/upbit_realtime.js";
+import * as Sentry from "@sentry/node";
 
 export class Upbit extends pro.upbit {
     marketSymbols = [];
@@ -160,6 +161,10 @@ export class Upbit extends pro.upbit {
 
         return candles;
     }
+
+    async fetchTradeHistoryByCount(symbol){
+
+    }
 }
 
 export const collect1mCandle = async (writer, reader) => {
@@ -187,7 +192,7 @@ export const collect1mCandle = async (writer, reader) => {
             }
         } catch (e) {
             console.error(e)
-            await sleep(10);
+            Sentry.captureException(e)
         }
     }
 }
