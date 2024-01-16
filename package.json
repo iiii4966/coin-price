@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "@questdb/nodejs-client": "^2.1.0",
+    "@sentry/node": "^7.93.0",
     "better-sqlite3": "^9.2.2",
     "ccxt": "^4.1.97",
     "cron": "^3.1.6",
@@ -18,5 +19,11 @@
     "moment-round": "^1.0.1",
     "moment-timezone": "^0.5.44",
     "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.7",
+    "@babel/preset-env": "^7.23.8",
+    "@types/jest": "^29.5.11",
+    "jest": "^29.7.0"
   }
 }

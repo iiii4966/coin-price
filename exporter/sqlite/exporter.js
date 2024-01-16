@@ -21,7 +21,7 @@ export class CoinMeerkatSqliteExporter {
 
     async fetchSymbols(){
         const sql = `
-            SELECT DISTINCT symbol FROM bithumb_candle_1m WHERE symbol LIKE '%KRW' ORDER BY symbol;
+            SELECT DISTINCT symbol FROM ${this.exchange}_candle_1m ORDER BY symbol;
         `
         const {rows} = await this.coinDB.query(sql);
         return rows;
@@ -62,15 +62,15 @@ export class CoinMeerkatSqliteExporter {
 
         }
 
-        console.log('complete candle history')
+        console.log(`complete ${this.exchange} candle history`)
     }
 
     async updateLatestCandles(){
-        const now = new Date();
+        const nowTms = new Date().getTime();
         const bulkInsertStatements = this.sqliteDB.prepareCandleBulkInsert()
 
         for (const unit of this.candleUnits) {
-            let {start} = getCandleTimeRange(now.getTime(), unit);
+            let {start} = getCandleTimeRange(nowTms, unit);
             start -= CANDLES[unit].ms
 
             const query = `
@@ -83,9 +83,8 @@ export class CoinMeerkatSqliteExporter {
                     close,
                     volume,
                 FROM ${this.exchange}_candle_${unit}
-                WHERE symbol LIKE '%KRW' AND timestamp >= ${start * 1000}
+                WHERE timestamp >= ${start * 1000}
             `
-
             const {rows} = await this.coinDB.query(query);
             const convertedRows = rows.map((row) => {
                 return this.convertExportData(row)
@@ -94,7 +93,7 @@ export class CoinMeerkatSqliteExporter {
             const exportUnit = CANDLES[unit].sqlite.unit;
             const bulkInsert = bulkInsertStatements[exportUnit];
             bulkInsert(convertedRows)
-            console.log(`update latest ${unit} candle:`, rows.length)
+            console.log(`update latest ${this.exchange} ${unit} candle:`, rows.length)
         }
     }
 }
@@ -112,6 +111,32 @@ export class BithumbSqliteExporter extends CoinMeerkatSqliteExporter{
             market: this.exchange.toUpperCase(),
             tms: tms.getTime(),
             code: code.replace('/', '_'),
+            op,
+            hp,
+            lp,
+            cp,
+            tv
+        }
+    }
+}
+
+export class UpbitSqliteExporter extends CoinMeerkatSqliteExporter{
+
+    constructor(options = {}) {
+        options.exchange = 'upbit';
+        super(options)
+    }
+
+    formatCode (code) { // BTC/KRW
+        const [coin, unit] = code.split('/')
+        return `${unit}-${coin}`
+    }
+
+    convertExportData({timestamp: tms, symbol: code, open: op, high: hp, low: lp, close: cp, volume: tv}){
+        return {
+            market: this.exchange.toUpperCase(),
+            tms: tms.getTime(),
+            code: this.formatCode(code),
             op,
             hp,
             lp,

@@ -3,6 +3,7 @@ import {Postgres} from "../db/postgres.js";
 import {Bithumb} from "../exchange/bithumb.js";
 import fs from "fs";
 import {sleep} from "../utils/utils.js";
+import {Upbit} from "../exchange/upbit.js";
 
 
 const compare = (c1, c2) => {
@@ -33,7 +34,7 @@ const compare = (c1, c2) => {
         result.low = true
     } else if (Number(c1.volume.toFixed(4)) !== Number(c2.volume.toFixed(4))) {
         result.volume = true
-        result.volumeDiff = (Math.abs(c1.volume - c2.volume)).toFixed(8)
+        result.volumeDiff = Math.abs(c1.volume - c2.volume)
     }
     result.summary = Object.values(result).some(r => r)
     return result;
@@ -57,22 +58,42 @@ const logCheckSummary = (exchange, data) => {
     const {parsed: config} = configDotenv();
     const coinDB = new Postgres(config)
 
-    const bithumb = new Bithumb()
-    await bithumb.loadMarkets()
-    const exchange = bithumb.name.toLowerCase()
+    const exchangeInArg = process.argv[2]
+    const symbolInArg = process.argv[3]
+    const candleUnitsInArg = process.argv[4] ? [process.argv[4]] : ['1m']
+
+    let exchange;
+    let fetchOHLCVFunction;
+    if (exchangeInArg === 'bithumb') {
+        exchange = new Bithumb()
+        fetchOHLCVFunction = exchange.fetchOHLCV.bind(exchange)
+    } else if (exchangeInArg === 'upbit') {
+        exchange = new Upbit()
+        fetchOHLCVFunction = exchange.fetchOHLCVByCount.bind(exchange)
+    } else {
+        throw new Error(`no exchange: ${exchangeInArg}`)
+    }
+
+    await exchange.loadMarkets()
+    const exchangeName = exchange.name.toLowerCase()
+    const symbols = symbolInArg !== undefined ? [symbolInArg] : exchange.filterSymbols();
+
     const summaries = {}
 
-    const {symbols} = bithumb;
-    for (const symbol of ['BTC/KRW']) {
-        for (const unit of ['1m', '10m', '1h']) {
-            const candles = await coinDB.fetchCandlesBySymbol(exchange, unit, symbol === 'ArchLoot/KRW' ? 'ALT/KRW' : symbol, 0, 1500, 'DESC');
+    for (const symbol of symbols) {
+        for (const unit of candleUnitsInArg) {
+            const candles = await coinDB.fetchCandlesBySymbol(exchangeName, unit, exchange.toStandardSymbol(symbol), 0, 1000, 'DESC');
+            if (candles.length === 0) {
+                console.log(`${exchangeName} ${symbol} ${unit} candle empty`)
+                continue
+            }
 
-            let bithumbOHCLV = await bithumb.fetchOHLCV(symbol, unit, 0, 1500);
+            const exchangeCandles = await fetchOHLCVFunction(symbol, unit, 0, 1000);
 
-            let bithumbCandlesMap = {}
-            bithumbOHCLV.forEach(
+            let exchangeCandlesMap = {}
+            exchangeCandles.forEach(
                 ([timestamp, open, high, low, close, volume], idx) => {
-                    bithumbCandlesMap[timestamp] = {timestamp, open, high, low, close, volume};
+                    exchangeCandlesMap[timestamp] = {timestamp, open, high, low, close, volume};
                 }
             )
 
@@ -82,38 +103,41 @@ const logCheckSummary = (exchange, data) => {
                 diff: []
             }
 
-            candles.forEach((c) => {
+            candles.slice(1).forEach((c) => {
                 let diff = {
                     unix: c.timestamp.getTime(),
                     date: c.timestamp
                 }
 
-                const bc = bithumbCandlesMap[c.timestamp.getTime()]
-                if (bc === undefined) {
-                    diffCandles.diff.push(diff)
+                const ec = exchangeCandlesMap[c.timestamp.getTime()]
+                if (ec === undefined) {
+                    // diffCandles.diff.push(diff)
                     return
                 }
-                const result = compare(c, bc)
+                const result = compare(c, ec)
                 if (result.summary) {
                     diff = {
                         unix: c.timestamp.getTime(),
                         date: c.timestamp,
+                        candle: c,
+                        exchangeCandle: ec,
                         ...result
                     }
                     diffCandles.diff.push(diff)
                 }
             });
 
-            // logCheckCandles(exchange, symbol, unit, diffCandles)
+            logCheckCandles(exchangeName, symbol, unit, diffCandles)
 
             const summary = {
                 unit,
                 diffCount: diffCandles.diff.length,
                 dbCount: candles.length,
-                apiCount: bithumbOHCLV.length,
+                apiCount: exchangeCandles.length,
                 percent: ((diffCandles.diff.length / candles.length) * 100).toFixed(2),
                 pricePercent: ((diffCandles.diff.filter(d => (d.open || d.high || d.low || d.close)).length / candles.length) * 100).toFixed(3),
-                volumePercent: ((diffCandles.diff.filter(d => d.volume).length / candles.length) * 100).toFixed(2)
+                volumePercent: ((diffCandles.diff.filter(d => d.volume).length / candles.length) * 100).toFixed(2),
+                maxVolumeDiff: Math.max(...diffCandles.diff.map(d => d.volumeDiff))
             }
 
             if (summaries[symbol]) {
@@ -122,11 +146,11 @@ const logCheckSummary = (exchange, data) => {
                 summaries[symbol] = [summary]
             }
 
-            console.log(`bithumb ${symbol} ${unit} candle diff:`, summary)
+            console.log(`${exchangeName} ${symbol} ${unit} candle diff:`, summary)
             await sleep(10)
         }
     }
 
-    logCheckSummary(exchange, summaries)
+    logCheckSummary(exchangeName, summaries)
     await coinDB.close()
 }())

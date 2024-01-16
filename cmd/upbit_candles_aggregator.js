@@ -1,4 +1,3 @@
-import * as bithumb from "../exchange/bithumb.js";
 import {configDotenv} from "dotenv";
 import {Postgres} from "../db/postgres.js";
 import {CronJob} from "cron";
@@ -18,7 +17,7 @@ const bootstrap = async () => {
         cronTime: '*/5 * * * * *',
         onTick: async () => {
             try {
-                await aggregateRealtimeCandles(db, 'bithumb');
+                await aggregateRealtimeCandles(db, 'upbit');
             } catch (e) {
                 Sentry.captureException(e)
             }
@@ -26,7 +25,7 @@ const bootstrap = async () => {
     });
 
     process.on('SIGINT', async () => {
-        console.log('Shutdown bithumb candles aggregator')
+        console.log(`Shutdown upbit candles aggregator`)
         process.exit()
     })
 

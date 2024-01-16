@@ -29,11 +29,12 @@ export class CandleRealtimeAggregator {
         }
     }
 
-    initCandle(start, end, symbol, price, amount) {
+    initCandle(start, tradeTms, end, symbol, price, amount) {
         const candle = {
             start,
             end,
-            latestTradeTms: start,
+            lastTradeTms: tradeTms,
+            firstTradeTms: tradeTms,
             symbol,
             open: price,
             close: price,
@@ -47,10 +48,14 @@ export class CandleRealtimeAggregator {
     }
 
     updateCandle(candle, tradeTms, price, amount) {
-        const {latestTradeTms, high, low} = candle;
-        if (latestTradeTms <= tradeTms) {
+        const {firstTradeTms, lastTradeTms, high, low} = candle;
+        if (firstTradeTms > tradeTms) {
+            candle.open = price;
+            candle.firstTradeTms = tradeTms;
+        }
+        if (lastTradeTms <= tradeTms) {
             candle.close = price;
-            candle.latestTradeTms = tradeTms;
+            candle.lastTradeTms = tradeTms;
         }
         candle.high = Math.max(high, price);
         candle.low = Math.min(low, price);
@@ -91,7 +96,7 @@ export class CandleRealtimeAggregator {
         if (candle) {
             candle = this.updateCandle(candle, timestamp, price, amount);
         } else {
-            candle = this.initCandle(start, end, symbol, price, amount);
+            candle = this.initCandle(start, timestamp, end, symbol, price, amount);
         }
         this.setCandle(candle);
     }
@@ -100,21 +105,22 @@ export class CandleRealtimeAggregator {
         const candles = await db.fetchLatestCandles(this.exchange, this.unit)
         console.log(`load ${this.exchange} ${this.unit} candles:`, candles.length);
 
-        for (const {symbol, open, high, low, close, volume, timestamp, closed} of candles) {
+        for (const {symbol, open, high, low, close, volume, timestamp} of candles) {
             const tms = Number(timestamp)
             const candle = {
                 start: tms,
                 end: tms + this.ms,
-                latestTradeTms: tms,
+                lastTradeTms: tms,
+                firstTradeTms: tms,
                 symbol,
                 open,
                 high,
                 low,
                 close,
                 volume,
-                closed,
             }
             this.candles[symbol] = {[timestamp]: candle}
+            this.setLatestTms(symbol, tms)
         }
     }
 
@@ -131,7 +137,7 @@ export class CandleRealtimeAggregator {
             let latestTms = this.candleLatestTms[symbol];
             for (const candle of Object.values(candles)) {
                 insertCandles.push(candle);
-                if (candle.start < latestTms) {
+                if (latestTms && candle.start < latestTms) {
                     candle.closed = true;
                     closedCandles.push(candle);
                 }
@@ -141,7 +147,7 @@ export class CandleRealtimeAggregator {
         }
         await db.writeCandles(this.exchange, this.unit, insertCandles);
 
-        console.log(`bithumb insert ${this.unit} candles:`, insertSymbolCount);
+        console.log(`${this.exchange} insert ${this.unit} candles:`, insertSymbolCount);
         this.removeClosedCandle(closedCandles);
     }
 

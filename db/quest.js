@@ -38,6 +38,7 @@ export class Quest {
                 .symbol('side', trade.side)
                 .floatColumn('price', trade.price)
                 .floatColumn('amount', trade.amount)
+                .stringColumn('sequential_id', trade.id)
                 .at(trade.timestamp, 'ms'); // epoch in millis
         }
         await client.flush();

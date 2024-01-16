@@ -14,7 +14,17 @@ export class SqliteDB {
         this.db.exec('PRAGMA journal_size_limit = 1073741824');
     }
 
-    prepareCandleInsert = () => {
+    deleteOldCandles(unit, oldestTms){
+        const result = this.db.prepare(`
+            DELETE 
+            FROM ${unit}Candle 
+            WHERE tms < ${oldestTms}
+        `
+        ).run();
+        return result.changes;
+    }
+
+    prepareCandleInsert(){
         const statements = {}
         for (const unit of this.candleUnits) {
             statements[unit] = this.db.prepare(`
@@ -26,7 +36,7 @@ export class SqliteDB {
         return statements;
     }
 
-    prepareCandleBulkInsert = () => {
+    prepareCandleBulkInsert(){
         const statements = {}
         const states = this.prepareCandleInsert();
         for (const [unit, insert] of Object.entries(states)) {
@@ -39,7 +49,7 @@ export class SqliteDB {
         return statements;
     }
 
-    createCandleTables = () => {
+    createCandleTables(){
         for (const unit of this.candleUnits) {
             const ddl = `
                 CREATE TABLE ${unit}Candle (

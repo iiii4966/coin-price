@@ -1,0 +1,602 @@
+[
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8547E7,
+    "amount": 0.01967195,
+    "sequential_id": "17053057843010000",
+    "timestamp": "2024-01-15 08:03:04.301000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8547E7,
+    "amount": 0.02916497,
+    "sequential_id": "17053057867260000",
+    "timestamp": "2024-01-15 08:03:06.726000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8547E7,
+    "amount": 0.00268602,
+    "sequential_id": "17053057867260002",
+    "timestamp": "2024-01-15 08:03:06.726000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8547E7,
+    "amount": 0.00854014,
+    "sequential_id": "17053057867260001",
+    "timestamp": "2024-01-15 08:03:06.726000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "buy",
+    "price": 5.8581E7,
+    "amount": 8.542E-5,
+    "sequential_id": "17053057867670000",
+    "timestamp": "2024-01-15 08:03:06.767000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8547E7,
+    "amount": 0.00297804,
+    "sequential_id": "17053057868590000",
+    "timestamp": "2024-01-15 08:03:06.859000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8547E7,
+    "amount": 0.00426793,
+    "sequential_id": "17053057868590001",
+    "timestamp": "2024-01-15 08:03:06.859000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "buy",
+    "price": 5.8547E7,
+    "amount": 0.01017326,
+    "sequential_id": "17053057893880000",
+    "timestamp": "2024-01-15 08:03:09.388000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "buy",
+    "price": 5.8547E7,
+    "amount": 0.00665079,
+    "sequential_id": "17053057894610000",
+    "timestamp": "2024-01-15 08:03:09.461000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "buy",
+    "price": 5.8547E7,
+    "amount": 0.00170802,
+    "sequential_id": "17053057909250000",
+    "timestamp": "2024-01-15 08:03:10.925000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "buy",
+    "price": 5.8547E7,
+    "amount": 0.02288025,
+    "sequential_id": "17053057931770000",
+    "timestamp": "2024-01-15 08:03:13.177000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8546E7,
+    "amount": 0.00198516,
+    "sequential_id": "17053057963040000",
+    "timestamp": "2024-01-15 08:03:16.304000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "buy",
+    "price": 5.8547E7,
+    "amount": 0.00868492,
+    "sequential_id": "17053057972890000",
+    "timestamp": "2024-01-15 08:03:17.289000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "buy",
+    "price": 5.8547E7,
+    "amount": 0.0084357,
+    "sequential_id": "17053057972890001",
+    "timestamp": "2024-01-15 08:03:17.289000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "buy",
+    "price": 5.8547E7,
+    "amount": 0.00751474,
+    "sequential_id": "17053057986940000",
+    "timestamp": "2024-01-15 08:03:18.694000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8546E7,
+    "amount": 0.01845267,
+    "sequential_id": "17053057994720000",
+    "timestamp": "2024-01-15 08:03:19.472000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8546E7,
+    "amount": 1.7057E-4,
+    "sequential_id": "17053057994720001",
+    "timestamp": "2024-01-15 08:03:19.472000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8546E7,
+    "amount": 6.5798E-4,
+    "sequential_id": "17053057994720004",
+    "timestamp": "2024-01-15 08:03:19.472000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8546E7,
+    "amount": 0.01707208,
+    "sequential_id": "17053057994720003",
+    "timestamp": "2024-01-15 08:03:19.472000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8546E7,
+    "amount": 0.00152658,
+    "sequential_id": "17053057994720002",
+    "timestamp": "2024-01-15 08:03:19.472000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8546E7,
+    "amount": 0.00979925,
+    "sequential_id": "17053057994720005",
+    "timestamp": "2024-01-15 08:03:19.472000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "buy",
+    "price": 5.8547E7,
+    "amount": 0.01708029,
+    "sequential_id": "17053057998510000",
+    "timestamp": "2024-01-15 08:03:19.851000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "buy",
+    "price": 5.8547E7,
+    "amount": 0.03626592,
+    "sequential_id": "17053058004630000",
+    "timestamp": "2024-01-15 08:03:20.463000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "buy",
+    "price": 5.8547E7,
+    "amount": 0.0015059,
+    "sequential_id": "17053058004630001",
+    "timestamp": "2024-01-15 08:03:20.463000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "buy",
+    "price": 5.858E7,
+    "amount": 8.542E-5,
+    "sequential_id": "17053058035580000",
+    "timestamp": "2024-01-15 08:03:23.558000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8547E7,
+    "amount": 0.01173629,
+    "sequential_id": "17053058036170000",
+    "timestamp": "2024-01-15 08:03:23.617000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "buy",
+    "price": 5.8579E7,
+    "amount": 0.0085,
+    "sequential_id": "17053058041920001",
+    "timestamp": "2024-01-15 08:03:24.192000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "buy",
+    "price": 5.8547E7,
+    "amount": 0.01155589,
+    "sequential_id": "17053058041920000",
+    "timestamp": "2024-01-15 08:03:24.192000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.858E7,
+    "amount": 0.03113055,
+    "sequential_id": "17053058042630000",
+    "timestamp": "2024-01-15 08:03:24.263000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8546E7,
+    "amount": 0.0148026,
+    "sequential_id": "17053058077690000",
+    "timestamp": "2024-01-15 08:03:27.769000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8546E7,
+    "amount": 0.00955932,
+    "sequential_id": "17053058083330000",
+    "timestamp": "2024-01-15 08:03:28.333000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8546E7,
+    "amount": 0.00853431,
+    "sequential_id": "17053058083330003",
+    "timestamp": "2024-01-15 08:03:28.333000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8546E7,
+    "amount": 0.00340761,
+    "sequential_id": "17053058083330002",
+    "timestamp": "2024-01-15 08:03:28.333000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8546E7,
+    "amount": 0.00319956,
+    "sequential_id": "17053058083330001",
+    "timestamp": "2024-01-15 08:03:28.333000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "buy",
+    "price": 5.8546E7,
+    "amount": 0.00129169,
+    "sequential_id": "17053058088860000",
+    "timestamp": "2024-01-15 08:03:28.886000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8545E7,
+    "amount": 0.04730441,
+    "sequential_id": "17053058091200000",
+    "timestamp": "2024-01-15 08:03:29.120000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "buy",
+    "price": 5.8546E7,
+    "amount": 0.00853161,
+    "sequential_id": "17053058099490000",
+    "timestamp": "2024-01-15 08:03:29.949000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "buy",
+    "price": 5.8546E7,
+    "amount": 8.5309E-4,
+    "sequential_id": "17053058104050000",
+    "timestamp": "2024-01-15 08:03:30.405000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8545E7,
+    "amount": 0.005985,
+    "sequential_id": "17053058119870000",
+    "timestamp": "2024-01-15 08:03:31.987000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8545E7,
+    "amount": 0.00170808,
+    "sequential_id": "17053058125950001",
+    "timestamp": "2024-01-15 08:03:32.595000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8545E7,
+    "amount": 0.00170808,
+    "sequential_id": "17053058125950002",
+    "timestamp": "2024-01-15 08:03:32.595000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8543E7,
+    "amount": 0.02250551,
+    "sequential_id": "17053058125950004",
+    "timestamp": "2024-01-15 08:03:32.595000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8545E7,
+    "amount": 0.34696585,
+    "sequential_id": "17053058125950000",
+    "timestamp": "2024-01-15 08:03:32.595000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8545E7,
+    "amount": 3.3136E-4,
+    "sequential_id": "17053058125950003",
+    "timestamp": "2024-01-15 08:03:32.595000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8542E7,
+    "amount": 0.00170817,
+    "sequential_id": "17053058125950005",
+    "timestamp": "2024-01-15 08:03:32.595000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8542E7,
+    "amount": 0.00807574,
+    "sequential_id": "17053058125950006",
+    "timestamp": "2024-01-15 08:03:32.595000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8545E7,
+    "amount": 0.00100611,
+    "sequential_id": "17053058179360000",
+    "timestamp": "2024-01-15 08:03:37.936000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8545E7,
+    "amount": 0.00399389,
+    "sequential_id": "17053058179360001",
+    "timestamp": "2024-01-15 08:03:37.936000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8545E7,
+    "amount": 9.413E-5,
+    "sequential_id": "17053058184890000",
+    "timestamp": "2024-01-15 08:03:38.489000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8542E7,
+    "amount": 0.00315937,
+    "sequential_id": "17053058184890001",
+    "timestamp": "2024-01-15 08:03:38.489000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8542E7,
+    "amount": 0.00170248,
+    "sequential_id": "17053058274040000",
+    "timestamp": "2024-01-15 08:03:47.404000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8542E7,
+    "amount": 0.00683223,
+    "sequential_id": "17053058275690001",
+    "timestamp": "2024-01-15 08:03:47.569000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8542E7,
+    "amount": 0.00312864,
+    "sequential_id": "17053058275690002",
+    "timestamp": "2024-01-15 08:03:47.569000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8542E7,
+    "amount": 0.00414503,
+    "sequential_id": "17053058275690000",
+    "timestamp": "2024-01-15 08:03:47.569000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.854E7,
+    "amount": 0.00854087,
+    "sequential_id": "17053058275690004",
+    "timestamp": "2024-01-15 08:03:47.569000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.854E7,
+    "amount": 0.00170823,
+    "sequential_id": "17053058275690003",
+    "timestamp": "2024-01-15 08:03:47.569000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.854E7,
+    "amount": 0.14646253,
+    "sequential_id": "17053058275690005",
+    "timestamp": "2024-01-15 08:03:47.569000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "buy",
+    "price": 5.8545E7,
+    "amount": 1.5077E-4,
+    "sequential_id": "17053058283830000",
+    "timestamp": "2024-01-15 08:03:48.383000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "buy",
+    "price": 5.8545E7,
+    "amount": 0.02547055,
+    "sequential_id": "17053058288940000",
+    "timestamp": "2024-01-15 08:03:48.894000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "buy",
+    "price": 5.8546E7,
+    "amount": 0.00321069,
+    "sequential_id": "17053058288940001",
+    "timestamp": "2024-01-15 08:03:48.894000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.854E7,
+    "amount": 0.02222377,
+    "sequential_id": "17053058294780000",
+    "timestamp": "2024-01-15 08:03:49.478000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "buy",
+    "price": 5.854E7,
+    "amount": 0.00797172,
+    "sequential_id": "17053058312470000",
+    "timestamp": "2024-01-15 08:03:51.247000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "buy",
+    "price": 5.8542E7,
+    "amount": 0.00170818,
+    "sequential_id": "17053058312470001",
+    "timestamp": "2024-01-15 08:03:51.247000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8542E7,
+    "amount": 0.00227135,
+    "sequential_id": "17053058341570000",
+    "timestamp": "2024-01-15 08:03:54.157000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8542E7,
+    "amount": 8.0811E-4,
+    "sequential_id": "17053058341570001",
+    "timestamp": "2024-01-15 08:03:54.157000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8542E7,
+    "amount": 0.0538546,
+    "sequential_id": "17053058341930000",
+    "timestamp": "2024-01-15 08:03:54.193000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8542E7,
+    "amount": 0.03070337,
+    "sequential_id": "17053058358130000",
+    "timestamp": "2024-01-15 08:03:55.813000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8542E7,
+    "amount": 0.00174821,
+    "sequential_id": "17053058358130001",
+    "timestamp": "2024-01-15 08:03:55.813000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "buy",
+    "price": 5.8543E7,
+    "amount": 0.01636042,
+    "sequential_id": "17053058373810000",
+    "timestamp": "2024-01-15 08:03:57.381000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "buy",
+    "price": 5.8543E7,
+    "amount": 0.01636253,
+    "sequential_id": "17053058373860000",
+    "timestamp": "2024-01-15 08:03:57.386000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8542E7,
+    "amount": 0.0143589,
+    "sequential_id": "17053058382500000",
+    "timestamp": "2024-01-15 08:03:58.250000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "buy",
+    "price": 5.8542E7,
+    "amount": 7.3885E-4,
+    "sequential_id": "17053058384320000",
+    "timestamp": "2024-01-15 08:03:58.432000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "buy",
+    "price": 5.8543E7,
+    "amount": 0.01616336,
+    "sequential_id": "17053058384320001",
+    "timestamp": "2024-01-15 08:03:58.432000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.8537E7,
+    "amount": 0.00341664,
+    "sequential_id": "17053058386710001",
+    "timestamp": "2024-01-15 08:03:58.671000"
+  },
+  {
+    "symbol": "BTC/KRW",
+    "side": "sell",
+    "price": 5.854E7,
+    "amount": 0.01652634,
+    "sequential_id": "17053058386710000",
+    "timestamp": "2024-01-15 08:03:58.671000"
+  }
+]

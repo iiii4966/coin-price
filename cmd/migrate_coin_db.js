@@ -2,12 +2,12 @@ import {Postgres} from "../db/postgres.js";
 import {CANDLES} from "../utils/constant.js";
 import {configDotenv} from "dotenv";
 
-const createCandleTables = async (db) => {
+const createCandleTables = async (db, exchange) => {
     const client = await db.connect();
     for (const [unit, {questDB: {partitionBy}}] of Object.entries(CANDLES)) {
         await client.query(
             `
-                CREATE TABLE IF NOT EXISTS bithumb_candle_${unit} (
+                CREATE TABLE IF NOT EXISTS ${exchange}_candle_${unit} (
                   timestamp TIMESTAMP,
                   symbol SYMBOL INDEX,
                   open DOUBLE,
@@ -19,13 +19,13 @@ const createCandleTables = async (db) => {
             `
         )
     }
-    await client.release()
-    await db.pool.end();
 }
 
 (async function () {
     const {parsed: config} = configDotenv();
     const db = new Postgres(config)
-    await createCandleTables(db)
+    await createCandleTables(db, 'bithumb')
+    await createCandleTables(db, 'upbit')
     console.log('complete coin db migrate')
-}()).catch(console.error)
+    await db.close();
+}().catch(console.error))
