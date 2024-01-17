@@ -77,11 +77,9 @@ export class Upbit extends pro.upbit {
     }
 
     handleTrades(client, message) {
-        const rawTrades = message.content.list;
-        for (const rawTrade of rawTrades) {
-            const trade = this.parseTrade(rawTrade)
-            this.candleAggregator.aggregate(trade)
-        }
+        // console.log(message);
+        const trade = this.parseTrade(message)
+        this.candleAggregator.aggregate(trade)
     }
 
     buildFetchOHLCVUrl(symbol, unit, to, limit){
