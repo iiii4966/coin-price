@@ -200,7 +200,7 @@ export const collectCandleHistory = async (db, count = 2000) => {
             if (timeframe === '1M') {
                 continue
             }
-            const collectCandles = await upbit.fetchOHLCVByCount(symbol, timeframe, 0, 2000);
+            const collectCandles = await upbit.fetchOHLCVByCount(symbol, timeframe, 0, count);
             await db.writeCandles(exchange, timeframe, collectCandles.map(
                 ([start, open, high, low, close, volume]) => {
                     return {start, symbol: upbit.toStandardSymbol(symbol), open, high, low, close, volume};
