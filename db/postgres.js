@@ -129,7 +129,6 @@ export class Postgres {
             SAMPLE BY ${sampleBy} ${alignToQuery};
         `
         if (unit === '3m') {
-            console.log(sql);
             const result = await this.query(`
                 SELECT
                   timestamp,
@@ -147,6 +146,26 @@ export class Postgres {
             fs.appendFile(`${exchange}_aggregate_latest_candles`, JSON.stringify(result.rows), (err) => {
                 if (err) throw err;
             });
+
+            const sql2 = `
+                SELECT
+                  timestamp,
+                  symbol,
+                  open,
+                  high,
+                  low, 
+                  close, 
+                  volume
+                FROM ${exchange}_candle_${sampleByBase}
+                WHERE ${timestamp * 1000} <= timestamp
+            `
+            const result2 = await this.query(sql2)
+
+            fs.appendFile(`${exchange}_aggregate_latest_candles`, sql2 + '\n', (err) => {if (err) throw err;})
+            fs.appendFile(`${exchange}_aggregate_latest_candles`, JSON.stringify(result2.rows), (err) => {
+                if (err) throw err;
+            });
+
         }
         return this.query(sql);
     }
