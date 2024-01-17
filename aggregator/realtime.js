@@ -145,7 +145,7 @@ export class CandleRealtimeAggregator {
 
             insertSymbolCount += 1;
         }
-        await db.writeCandles(this.exchange, this.unit, insertCandles);
+        await db.writeCandles(this.exchange, this.unit, insertCandles, new Date().getTime() * 1000);
 
         console.log(`${this.exchange} insert ${this.unit} candles:`, insertSymbolCount);
         this.removeClosedCandle(closedCandles);
