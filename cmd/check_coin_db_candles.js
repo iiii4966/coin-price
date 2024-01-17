@@ -54,7 +54,7 @@ const logCheckSummary = (exchange, data) => {
 }
 
 
-(async function checkCoinDBCandles() {
+(async function checkSameCoinDBCandlesWithExchangeCandles() {
     const {parsed: config} = configDotenv();
     const coinDB = new Postgres(config)
 

@@ -1,13 +1,17 @@
 import {bithumb as bithumbRest} from 'ccxt';
-import {ArrayCache} from "../utils/cache.js";
 import {getCandleTimeRange, sleep} from "../utils/utils.js";
 import {CandleRealtimeAggregator} from "../aggregator/realtime.js";
 import {CANDLES, utcHourMs} from "../utils/constant.js";
 import {RegularTimeCandleBatchAggregator, WeekCandleBatchAggregator} from "../aggregator/batch.js";
-import * as Sentry from "@sentry/node";
 
 export class Bithumb extends bithumbRest {
     marketSymbols = [];
+    candleAggregator = undefined;
+
+    constructor(userConfig = {}) {
+        super(userConfig);
+        this.candleAggregator = userConfig.candleAggregator;
+    }
 
     describe() {
         return this.deepExtend(super.describe(), {
@@ -95,23 +99,10 @@ export class Bithumb extends bithumbRest {
 
     handleTrades(client, message) {
         const rawTrades = message.content.list;
-        const first = this.safeValue(rawTrades, 0);
-        const symbol = this.safeString(first, 'symbol');
-
-        let tradeCachedArray = this.safeValue(this.trades, symbol);
-        if (tradeCachedArray === undefined) {
-            const limit = this.safeInteger(this.options, 'tradesLimit', 1000);
-            tradeCachedArray = new ArrayCache(limit);
-            this.trades[symbol] = tradeCachedArray;
-        }
-
         for (const rawTrade of rawTrades) {
             const trade = this.parseTrade(rawTrade)
-            tradeCachedArray.append(trade)
+            this.candleAggregator.aggregate(trade)
         }
-
-        const msgHash = 'trade:' + symbol;
-        client.resolve(tradeCachedArray, msgHash);
     }
 
     handleMessage(client, message) {
@@ -145,29 +136,6 @@ export class Bithumb extends bithumbRest {
 
     getMarketSymbols() {
         return this.filterSymbols().map((s) => this.toMarketSymbol(s))
-    }
-
-    async watchTradesForSymbols(symbols = [],
-                                since = undefined,
-                                limit = undefined,
-                                params = {}){
-        const url = this['urls']['api']['ws']
-        const request = {
-            type : 'transaction',
-            symbols,
-        }
-
-
-        const msgHashes = symbols.map(s => 'trade:' + s);
-
-        const trades = await this.watchMultiple(url, msgHashes, request, msgHashes);
-
-        if (this.newUpdates) {
-            const first = this.safeValue(trades, 0);
-            const tradeSymbol = this.safeString(first, 'symbol');
-            limit = trades.getLimit(tradeSymbol, limit);
-        }
-        return this.filterBySinceLimit(trades, since, limit, 'timestamp', true);
     }
 
     async loadMarkets(reload = false, params = {}) {
@@ -271,34 +239,27 @@ export const collectCandleHistory = async (db) => {
     console.log(`complete collect bithumb candle history`)
 }
 
+
 export const collect1mCandle = async (writer, reader) => {
-    const bithumb = new Bithumb();
+    const candleAggregator = new CandleRealtimeAggregator(
+        {unit: '1m', exchange: 'bithumb'}
+    );
+    await candleAggregator.loadLatestCandles(reader)
+    setInterval(() => {candleAggregator.persist(writer).catch(console.error)}, 1000 * 3);
+
+    const bithumb = new Bithumb({candleAggregator});
     await bithumb.loadMarkets();
 
     console.log('load markets:', bithumb.marketSymbols.length, JSON.stringify(bithumb.marketSymbols));
 
-    setInterval(() => {
-        bithumb.loadMarkets(true).catch(console.error);
-        console.log('load markets:', bithumb.marketSymbols.length, JSON.stringify(bithumb.marketSymbols));
-    }, 1000 * 60 * 60);
+    const url = bithumb['urls']['api']['ws']
+    const ws = bithumb.client(url)
 
-    const minAggregator = new CandleRealtimeAggregator(
-        {unit: '1m', exchange: bithumb.name.toLowerCase()}
-    );
-    await minAggregator.loadLatestCandles(reader)
-    setInterval(() => {
-        minAggregator.persist(writer).catch(console.error)
-    }, 1000 * 3);
-
-    while (true) {
-        try {
-            const trades = await bithumb.watchTradesForSymbols(bithumb.marketSymbols);
-            for (const trade of trades) {
-                minAggregator.aggregate(trade);
-            }
-        } catch (e) {
-            console.error(e)
-            Sentry.captureException(e)
-        }
-    }
+    const connected = ws.connect(0);
+    connected.then(() => {
+        ws.send({type : 'transaction', symbols: bithumb.marketSymbols}).catch(err => {
+            console.error(err);
+            throw err;
+        })
+    })
 }

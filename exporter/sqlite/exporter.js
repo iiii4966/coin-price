@@ -19,16 +19,8 @@ export class CoinMeerkatSqliteExporter {
         return {market: this.exchange.toUpperCase(), tms: tms.getTime(), code, op, hp, lp, cp, tv}
     }
 
-    async fetchSymbols(){
-        const sql = `
-            SELECT DISTINCT symbol FROM ${this.exchange}_candle_1m ORDER BY symbol;
-        `
-        const {rows} = await this.coinDB.query(sql);
-        return rows;
-    }
-
     async loadCandleHistory(limit = 2000){
-        const symbols = await this.fetchSymbols();
+        const symbols = await this.coinDB.fetchSymbols();
 
         const bulkInsertStatements = this.sqliteDB.prepareCandleBulkInsert()
 

@@ -30,6 +30,15 @@ export class Postgres {
         return result;
     }
 
+    async fetchSymbols(exchange){
+        const sql = `
+            SELECT DISTINCT symbol FROM ${exchange}_candle_1m ORDER BY symbol;
+        `
+        const {rows} = await this.query(sql);
+        return rows;
+    }
+
+
     async fetchCandlesBySymbol(exchange,
                                unit = '1m',
                                symbol,
@@ -43,14 +52,15 @@ export class Postgres {
                 high,
                 low,
                 close,
-                volume
+                volume,
+                created_at
             FROM ${exchange}_candle_${unit}
             WHERE symbol = '${symbol}'
             ORDER BY timestamp ${order}
             LIMIT ${since}, ${limit}
         `
-        const result = await this.query(sql);
-        return result.rows
+        const {rows} = await this.query(sql);
+        return rows;
     }
 
     async fetchLatestCandles(exchange, unit = '1m'){

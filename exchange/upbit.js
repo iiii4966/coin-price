@@ -1,10 +1,15 @@
 import {pro} from 'ccxt';
 import {sleep} from "../utils/utils.js";
 import {UpbitRealtimeAggregator} from "../aggregator/upbit_realtime.js";
-import * as Sentry from "@sentry/node";
 
 export class Upbit extends pro.upbit {
     marketSymbols = [];
+    candleAggregator = undefined;
+
+    constructor(userConfig = {}) {
+        super(userConfig);
+        this.candleAggregator = userConfig.candleAggregator;
+    }
 
     describe() {
         return this.deepExtend(super.describe(), {
@@ -71,29 +76,12 @@ export class Upbit extends pro.upbit {
         return parsed
     }
 
-    async watchTradesForSymbols(symbols = [],
-                                since = undefined,
-                                limit = undefined){
-        const request = [
-            {
-                'ticket': this.uuid(),
-            },
-            {
-                'type': 'trade',
-                'codes': symbols,
-                'isOnlyRealtime': true,
-            },
-        ];
-
-        const msgHashes = symbols.map(s => 'trade:' + s);
-        const trades = await this.watchMultiple(this.urls['api']['ws'], msgHashes, request, msgHashes);
-
-        if (this.newUpdates) {
-            const first = this.safeValue(trades, 0);
-            const tradeSymbol = this.safeString(first, 'symbol');
-            limit = trades.getLimit(tradeSymbol, limit);
+    handleTrades(client, message) {
+        const rawTrades = message.content.list;
+        for (const rawTrade of rawTrades) {
+            const trade = this.parseTrade(rawTrade)
+            this.candleAggregator.aggregate(trade)
         }
-        return this.filterBySinceLimit(trades, since, limit, 'timestamp', true);
     }
 
     buildFetchOHLCVUrl(symbol, unit, to, limit){
@@ -161,41 +149,42 @@ export class Upbit extends pro.upbit {
 
         return candles;
     }
-
-    async fetchTradeHistoryByCount(symbol){
-
-    }
 }
 
 export const collect1mCandle = async (writer, reader) => {
-    const upbit = new Upbit();
+    const candleAggregator = new UpbitRealtimeAggregator(
+        {unit: '1m'}
+    );
+    await candleAggregator.loadLatestCandles(reader)
+    setInterval(() => {candleAggregator.persist(writer).catch(console.error)}, 1000 * 3);
+
+    const upbit = new Upbit({candleAggregator});
     await upbit.loadMarkets();
 
     console.log('load markets:', upbit.marketSymbols.length, JSON.stringify(upbit.marketSymbols));
 
-    setInterval(async () => {
-        await upbit.loadMarkets(true).catch(console.error)
-        console.log(upbit.marketSymbols.length, JSON.stringify(upbit.marketSymbols))
-    }, 1000 * 60 * 60);
+    const url = upbit['urls']['api']['ws']
+    const ws = upbit.client(url)
 
-    const minAggregator = new UpbitRealtimeAggregator(
-        {unit: '1m', exchange: upbit.name.toLowerCase()}
-    );
-    await minAggregator.loadLatestCandles(reader)
-    setInterval(() => {minAggregator.persist(writer).catch(console.error)}, 1000 * 3);
-
-    while (true) {
-        try {
-            const trades = await upbit.watchTradesForSymbols(upbit.marketSymbols);
-            for (const trade of trades) {
-                minAggregator.aggregate(trade);
-            }
-        } catch (e) {
-            console.error(e)
-            Sentry.captureException(e)
-        }
-    }
+    const connected = ws.connect(0);
+    connected.then(() => {
+        const message = [
+            {
+                'ticket': upbit.uuid(),
+            },
+            {
+                'type': 'trade',
+                'codes': upbit.marketSymbols,
+                'isOnlyRealtime': true,
+            },
+        ];
+        ws.send(message).catch(err => {
+            console.error(err);
+            throw err;
+        })
+    })
 }
+
 
 /**
  * 모든 종목 캔들 수집 시간: 30분
