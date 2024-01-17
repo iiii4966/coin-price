@@ -41,6 +41,7 @@ export class CandleRealtimeAggregator {
             high: price,
             low: price,
             volume: amount,
+            createdAt: Date.now() * 1000,
             closed: false
         }
         this.setLatestTms(symbol, start);
@@ -145,7 +146,7 @@ export class CandleRealtimeAggregator {
 
             insertSymbolCount += 1;
         }
-        await db.writeCandles(this.exchange, this.unit, insertCandles, new Date().getTime() * 1000);
+        await db.writeCandles(this.exchange, this.unit, insertCandles);
 
         console.log(`${this.exchange} insert ${this.unit} candles:`, insertSymbolCount);
         this.removeClosedCandle(closedCandles);

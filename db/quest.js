@@ -44,7 +44,7 @@ export class Quest {
         await client.flush();
     }
 
-    async writeCandles(exchange, candleUnit, candles, updatedAt) {
+    async writeCandles(exchange, candleUnit, candles) {
         const client = await this.connect();
         for (const candle of candles) {
             client
@@ -55,7 +55,7 @@ export class Quest {
                 .floatColumn('high', candle.high)
                 .floatColumn('low', candle.low)
                 .floatColumn('volume', candle.volume)
-                .timestampColumn('updated_at', updatedAt)
+                .timestampColumn('created_at', candle.createdAt ?? 0)
                 .at(candle.start, 'ms');
         }
         await client.flush();
