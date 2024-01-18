@@ -5,8 +5,24 @@ import {configDotenv} from "dotenv";
 const createCandleTables = async (db, exchange) => {
     const client = await db.connect();
     for (const [unit, {questDB: {partitionBy}}] of Object.entries(CANDLES)) {
-        await client.query(
+        if (unit === '1m') {
+            await client.query(
+                `
+                CREATE TABLE IF NOT EXISTS ${exchange}_candle_${unit} (
+                  timestamp TIMESTAMP,
+                  symbol SYMBOL INDEX,
+                  open DOUBLE,
+                  close DOUBLE,
+                  high DOUBLE,
+                  low DOUBLE,
+                  volume DOUBLE,
+                  created_at TIMESTAMP
+                ) timestamp(timestamp) PARTITION BY ${partitionBy} WAL DEDUP UPSERT KEYS(timestamp, symbol);
             `
+            )
+        } else {
+            await client.query(
+                `
                 CREATE TABLE IF NOT EXISTS ${exchange}_candle_${unit} (
                   timestamp TIMESTAMP,
                   symbol SYMBOL INDEX,
@@ -17,7 +33,8 @@ const createCandleTables = async (db, exchange) => {
                   volume DOUBLE
                 ) timestamp(timestamp) PARTITION BY ${partitionBy} WAL DEDUP UPSERT KEYS(timestamp, symbol);
             `
-        )
+            )
+        }
     }
 }
 

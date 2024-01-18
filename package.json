@@ -12,6 +12,8 @@
   "dependencies": {
     "@questdb/nodejs-client": "^2.1.0",
     "@sentry/node": "^7.93.0",
+    "@slack/web-api": "^7.0.0",
+    "axios": "^1.6.5",
     "better-sqlite3": "^9.2.2",
     "ccxt": "^4.1.97",
     "cron": "^3.1.6",

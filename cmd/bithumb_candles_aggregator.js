@@ -1,4 +1,3 @@
-import * as bithumb from "../exchange/bithumb.js";
 import {configDotenv} from "dotenv";
 import {Postgres} from "../db/postgres.js";
 import {CronJob} from "cron";

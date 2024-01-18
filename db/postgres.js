@@ -45,14 +45,31 @@ export class Postgres {
                                since = 0,
                                limit = 1000,
                                order = 'DESC'){
-        const sql = `
-            SELECT
+        let select;
+        if (unit === '1m') {
+            select = `
                 timestamp,
+                symbol,
+                open, 
+                high,
+                low,
+                close,
+                volume,
+                created_at
+            `
+        } else {
+            select = `
+                timestamp,
+                symbol,
                 open, 
                 high,
                 low,
                 close,
                 volume
+            `
+        }
+        const sql = `
+            SELECT ${select}
             FROM ${exchange}_candle_${unit}
             WHERE symbol = '${symbol}'
             ORDER BY timestamp ${order}
