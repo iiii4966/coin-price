@@ -3,6 +3,7 @@ import {getCandleTimeRange, sleep} from "../utils/utils.js";
 import {CandleRealtimeAggregator} from "../aggregator/realtime.js";
 import {CANDLES, utcHourMs} from "../utils/constant.js";
 import {RegularTimeCandleBatchAggregator, WeekCandleBatchAggregator} from "../aggregator/batch.js";
+import * as Sentry from "@sentry/node";
 
 export class Bithumb extends bithumbRest {
     marketSymbols = [];
@@ -19,7 +20,6 @@ export class Bithumb extends bithumbRest {
             'pro': true,
             'has': {
                 'ws': true,
-                'watchTradesForSymbols': true,
             },
             'urls': {
                 'api': {
@@ -31,7 +31,7 @@ export class Bithumb extends bithumbRest {
                 'tradesLimit': 1000,
             },
             'streaming': {
-                'keepAlive': 15000,
+                'keepAlive': 10000,
             },
         });
     }
@@ -152,6 +152,73 @@ export class Bithumb extends bithumbRest {
         }
         return this.marketsLoading;
     }
+
+    wsClient(url){
+        const client = super.client(url)
+        client.onPong = this.onPong.bind(client)
+        client.onPing = this.onPing.bind(client)
+        return client
+    }
+
+    onPing() {
+        console.log('Ping:', new Date());
+    }
+
+    onPong() {
+        this.lastPong = Date.now();
+        console.log('Pong:', new Date(this.lastPong));
+    }
+
+    onConnected(client, message = undefined) {
+        console.log ('Connected:', client.url);
+
+        const symbols = this.marketSymbols;
+        if (!symbols || symbols.length === 0) {
+            throw Error('Not exist symbols')
+        }
+        const request = {
+            type : 'transaction', symbols,
+        }
+        client.send(request).catch(err => {
+            console.error(err);
+            throw err;
+        })
+    }
+
+    onError(client, error) {
+        const url = client.url;
+        if ((url in this.clients) && (this.clients[url].error)) {
+            delete this.clients[url];
+        }
+
+        if (error) {
+            console.error('Error:', error);
+            Sentry.captureException(error)
+        }
+
+        const ws = this.wsClient(url);
+        ws.connect(0).catch(err => {
+            throw err
+        });
+        console.log('Reconnected')
+    }
+
+    onClose(client, error) {
+        const url = client.url;
+        console.log(`Closed: ${url} | error: ${error}`)
+
+        if (this.clients[url]) {
+            delete this.clients[url];
+        }
+
+        if (error) {
+            const ws = this.wsClient(url);
+            ws.connect(0).catch(err => {
+                throw err
+            });
+            console.log('Reconnected')
+        }
+    }
 }
 
 export const aggregateCandleHistory = async (db) => {
@@ -250,16 +317,7 @@ export const collect1mCandle = async (writer, reader) => {
     const bithumb = new Bithumb({candleAggregator});
     await bithumb.loadMarkets();
 
-    console.log('load markets:', bithumb.marketSymbols.length, JSON.stringify(bithumb.marketSymbols));
-
     const url = bithumb['urls']['api']['ws']
-    const ws = bithumb.client(url)
-
-    const connected = ws.connect(0);
-    connected.then(() => {
-        ws.send({type : 'transaction', symbols: bithumb.marketSymbols}).catch(err => {
-            console.error(err);
-            throw err;
-        })
-    })
+    const ws = bithumb.wsClient(url)
+    await ws.connect(0);
 }

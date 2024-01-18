@@ -52,8 +52,7 @@ export class Postgres {
                 high,
                 low,
                 close,
-                volume,
-                created_at
+                volume
             FROM ${exchange}_candle_${unit}
             WHERE symbol = '${symbol}'
             ORDER BY timestamp ${order}
