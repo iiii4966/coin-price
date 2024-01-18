@@ -1,6 +1,7 @@
 import {pro} from 'ccxt';
 import {sleep} from "../utils/utils.js";
 import {UpbitRealtimeAggregator} from "../aggregator/upbit_realtime.js";
+import * as Sentry from "@sentry/node";
 
 export class Upbit extends pro.upbit {
     marketSymbols = [];
@@ -25,6 +26,9 @@ export class Upbit extends pro.upbit {
                 '1d': 'days',
                 '1w': 'weeks',
                 '1M': 'months',
+            },
+            'streaming': {
+                'keepAlive': 10000,
             },
         });
     }
@@ -77,7 +81,6 @@ export class Upbit extends pro.upbit {
     }
 
     handleTrades(client, message) {
-        // console.log(message);
         const trade = this.parseTrade(message)
         this.candleAggregator.aggregate(trade)
     }
@@ -147,40 +150,81 @@ export class Upbit extends pro.upbit {
 
         return candles;
     }
-}
 
-export const collect1mCandle = async (writer, reader) => {
-    const candleAggregator = new UpbitRealtimeAggregator(
-        {unit: '1m'}
-    );
-    await candleAggregator.loadLatestCandles(reader)
-    setInterval(() => {candleAggregator.persist(writer).catch(console.error)}, 1000 * 3);
+    wsClient(url){
+        const client = super.client(url)
+        client.onPong = this.onPong.bind(client)
+        client.onPing = this.onPing.bind(client)
+        return client
+    }
 
-    const upbit = new Upbit({candleAggregator});
-    await upbit.loadMarkets();
+    onPing() {
+        console.log('Ping:', new Date());
+    }
 
-    console.log('load markets:', upbit.marketSymbols.length, JSON.stringify(upbit.marketSymbols));
+    onPong() {
+        this.lastPong = Date.now();
+        console.log('Pong:', new Date(this.lastPong));
+    }
 
-    const url = upbit['urls']['api']['ws']
-    const ws = upbit.client(url)
+    onConnected(client, message = undefined) {
+        console.log ('Connected:', client.url);
 
-    const connected = ws.connect(0);
-    connected.then(() => {
-        const message = [
+        const symbols = this.marketSymbols;
+        if (!symbols || symbols.length === 0) {
+            throw Error('Not exist symbols')
+        }
+
+        const request = [
             {
-                'ticket': upbit.uuid(),
+                ticket: this.uuid(),
             },
             {
-                'type': 'trade',
-                'codes': upbit.marketSymbols,
-                'isOnlyRealtime': true,
+                type: 'trade',
+                codes: symbols,
+                isOnlyRealtime: true,
             },
         ];
-        ws.send(message).catch(err => {
+        client.send(request).catch(err => {
             console.error(err);
             throw err;
         })
-    })
+    }
+
+    onError(client, error) {
+        const url = client.url;
+        if ((url in this.clients) && (this.clients[url].error)) {
+            delete this.clients[url];
+        }
+
+        if (error) {
+            console.error('Error:', error);
+            Sentry.captureException(error)
+        }
+
+        const ws = this.wsClient(url);
+        ws.connect(0).catch(err => {
+            throw err
+        });
+        console.log('Reconnected')
+    }
+
+    onClose(client, error) {
+        const url = client.url;
+        console.log(`Closed: ${url} | error: ${error}`)
+
+        if (this.clients[url]) {
+            delete this.clients[url];
+        }
+
+        if (error) {
+            const ws = this.wsClient(url);
+            ws.connect(0).catch(err => {
+                throw err
+            });
+            console.log('Reconnected')
+        }
+    }
 }
 
 
@@ -211,4 +255,21 @@ export const collectCandleHistory = async (db, count = 2000) => {
     }
 
     console.log(`complete collect upbit candle history`)
+}
+
+export const collect1mCandle = async (writer, reader) => {
+    const candleAggregator = new UpbitRealtimeAggregator(
+        {unit: '1m'}
+    );
+    await candleAggregator.loadLatestCandles(reader)
+    setInterval(() => {candleAggregator.persist(writer).catch(console.error)}, 1000 * 3);
+
+    const upbit = new Upbit({candleAggregator});
+    await upbit.loadMarkets();
+
+    console.log('load markets:', upbit.marketSymbols.length, JSON.stringify(upbit.marketSymbols));
+
+    const url = upbit['urls']['api']['ws']
+    const ws = upbit.wsClient(url)
+    await ws.connect(0);
 }
