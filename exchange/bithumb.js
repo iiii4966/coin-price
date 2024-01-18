@@ -316,6 +316,7 @@ export const collect1mCandle = async (writer, reader) => {
 
     const bithumb = new Bithumb({candleAggregator});
     await bithumb.loadMarkets();
+    setInterval(() => {bithumb.loadMarkets(true).catch(console.error)}, 1000 * 60 * 60);
 
     const url = bithumb['urls']['api']['ws']
     const ws = bithumb.wsClient(url)

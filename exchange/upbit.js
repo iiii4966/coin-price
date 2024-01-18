@@ -266,6 +266,7 @@ export const collect1mCandle = async (writer, reader) => {
 
     const upbit = new Upbit({candleAggregator});
     await upbit.loadMarkets();
+    setInterval(() => {upbit.loadMarkets(true).catch(console.error)}, 1000 * 60 * 60);
 
     console.log('load markets:', upbit.marketSymbols.length, JSON.stringify(upbit.marketSymbols));
 

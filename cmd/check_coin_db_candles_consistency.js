@@ -10,16 +10,15 @@ import {Slack} from "../utils/slack.js";
     const slack = new Slack({slackApiToken: config.SLACK_API_TOKEN})
     const monitor = new CoinDBMonitor({coinDB: db, slack})
 
-    const options = {
-        exchangeName: 'bithumb',
-        units: ['1h'],
-        symbols: ['1INCH/KRW'],
-        checkCount: 20,
-        isLogDiffCandlesToFile: false,
+    const params = {
+        exchangeName: 'upbit',
+        units: ['1m'],
+        symbols: 'all',
+        checkCount: 180,
+        isLogDiffCandlesToFile: true,
         isLogSummaryToFile: true,
         isLogSummaryToSlack: true,
     }
-
-    await monitor.checkCoinDBCandlesConsistency(options)
+    await monitor.checkCoinDBCandlesConsistency(params)
     await db.close()
 }())
