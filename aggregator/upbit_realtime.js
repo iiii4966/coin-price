@@ -23,7 +23,7 @@ export class UpbitRealtimeAggregator extends CandleRealtimeAggregator {
             high: price,
             low: price,
             volume: amount,
-            createdAt: Date.now() * 1000,
+            createdAt: Date.now(),
             closed: false
         }
 

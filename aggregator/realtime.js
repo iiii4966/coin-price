@@ -41,7 +41,7 @@ export class CandleRealtimeAggregator {
             high: price,
             low: price,
             volume: amount,
-            createdAt: Date.now() * 1000,
+            createdAt: Date.now(),
             closed: false
         }
         this.setLatestTms(symbol, start);
