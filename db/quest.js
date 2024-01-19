@@ -31,6 +31,7 @@ export class Quest {
 
     async writeTrades(exchange, trades) {
         const client = await this.connect()
+        const now = Date.now()
         for (const trade of trades) {
             client
                 .table(`${exchange}_trade`)
@@ -38,7 +39,7 @@ export class Quest {
                 .symbol('side', trade.side)
                 .floatColumn('price', trade.price)
                 .floatColumn('amount', trade.amount)
-                .timestampColumn('created_at', Date.now() * 1000)
+                .timestampColumn('created_at', now, 'ms')
                 .at(trade.timestamp, 'ms'); // epoch in millis
         }
         await client.flush();
@@ -46,6 +47,7 @@ export class Quest {
 
     async writeCandles(exchange, candleUnit, candles) {
         const client = await this.connect();
+        const createdAt = Date.now()
         for (const candle of candles) {
             client
                 .table(`${exchange}_candle_${candleUnit}`)
@@ -55,7 +57,7 @@ export class Quest {
                 .floatColumn('high', candle.high)
                 .floatColumn('low', candle.low)
                 .floatColumn('volume', candle.volume)
-                .timestampColumn('created_at', candle.createdAt ?? 0)
+                .timestampColumn('created_at', candle.createdAt ?? createdAt, 'ms')
                 .at(candle.start, 'ms');
         }
         await client.flush();

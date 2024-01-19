@@ -176,7 +176,7 @@ export class CoinDBMonitor {
                     summaries[dbSymbol] = [summary]
                 }
 
-                console.log(`Checked ${exchangeName} ${dbSymbol} ${unit} candle diff:`, summary.diffCount)
+                console.log(`Checked ${exchangeName} ${dbSymbol} ${unit} candle diff:`, summary)
 
                 await sleep(10)
             }
