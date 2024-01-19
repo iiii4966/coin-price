@@ -28,6 +28,8 @@ const bootstrap = async () => {
         cronTime: '*/5 * * * * *',
         onTick: async () => {
             try {
+                const now = new Date().getTime();
+
                 await Promise.all([
                     bithumbExporter.updateLatestCandles(),
                     upbitExporter.updateLatestCandles()
@@ -35,7 +37,6 @@ const bootstrap = async () => {
 
                 // sqlite db 캔들 2000개 이상 삭제
                 const candleDurationCount = 2000;
-                const now = new Date().getTime();
                 if ((Math.floor(now / 1000) % 60) === 0) {
                     for (const {ms, sqlite: {unit}} of Object.values(CANDLES)) {
                         const oldestTms = now - (ms * candleDurationCount)
