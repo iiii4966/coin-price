@@ -11,10 +11,10 @@ import {Slack} from "../utils/slack.js";
     const monitor = new CoinDBMonitor({coinDB: db, slack})
 
     const params = {
-        exchangeName: 'upbit',
-        units: ['1m'],
+        exchangeName: 'bithumb',
+        units: ['3m'],
         symbols: 'all',
-        checkCount: 180,
+        checkCount: 120,
         isLogDiffCandlesToFile: true,
         isLogSummaryToFile: true,
         isLogSummaryToSlack: true,

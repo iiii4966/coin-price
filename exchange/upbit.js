@@ -148,7 +148,7 @@ export class Upbit extends pro.upbit {
             }
         }
 
-        return candles;
+        return candles.slice(since, limit);
     }
 
     wsClient(url){
