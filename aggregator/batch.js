@@ -1,5 +1,5 @@
 import {CANDLES, weekMs} from "../utils/constant.js";
-import {getCandleTimeRange, getWeekTimeRange} from "../utils/utils.js";
+import {getCandleTimeRange, getWeekTimeRange} from "../utils/time.js";
 
 
 export class RegularTimeCandleBatchAggregator {

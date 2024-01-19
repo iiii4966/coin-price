@@ -1,5 +1,5 @@
 import {CANDLES} from "../../utils/constant.js";
-import {getCandleTimeRange, sleep} from "../../utils/utils.js";
+import {getCandleTimeRange, sleep} from "../../utils/time.js";
 
 
 export class CoinMeerkatSqliteExporter {

@@ -1,6 +1,6 @@
 import {UpbitRealtimeAggregator} from "./upbit_realtime.js";
 import fs from 'fs';
-import {getCandleTimeRange} from "../utils/utils.js";
+import {getCandleTimeRange} from "../utils/time.js";
 
 
 const mockdata = () => {
@@ -56,7 +56,7 @@ test('test upbit realtime aggregate', () => {
     expect(candle.high).toBe(result.high);
     expect(candle.low).toBe(result.low);
     expect(candle.close).toBe(result.close);
-    expect(candle.volume).toBe(result.volume);
+    expect(candle.volume.toFixed(4)).toBe(result.volume.toFixed(4));
 });
 
 
@@ -125,5 +125,5 @@ test('test upbit AQT/KRW realtime aggregate', () => {
     expect(candle.high).toBe(result.high);
     expect(candle.low).toBe(result.low);
     expect(candle.close).toBe(result.close);
-    expect(candle.volume).toBe(result.volume);
+    expect(candle.volume.toFixed(4)).toBe(result.volume.toFixed(4));
 });

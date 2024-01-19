@@ -1,5 +1,5 @@
 import {bithumb as bithumbRest} from 'ccxt';
-import {getCandleTimeRange, sleep} from "../utils/utils.js";
+import {checkCandleStartTime, getCandleTimeRange, sleep} from "../utils/time.js";
 import {CandleRealtimeAggregator} from "../aggregator/realtime.js";
 import {CANDLES, utcHourMs} from "../utils/constant.js";
 import {RegularTimeCandleBatchAggregator, WeekCandleBatchAggregator} from "../aggregator/batch.js";
@@ -268,7 +268,7 @@ export const collectCandleHistory = async (db) => {
 
     console.log(`start collect bithumb candle history:`, symbols.length)
 
-    for (const symbol of symbols) {
+    for (const symbol of ['BTC/KRW']) {
         const standardSymbol = bithumb.toStandardSymbol(symbol);
         for (const [timeframe, _] of Object.entries(bithumb.timeframes)) {
             // 빗썸의 1일 캔들은 한국시간 기준 00시 이므로 UTC 기준과 달라 수집하지 않음
@@ -277,13 +277,22 @@ export const collectCandleHistory = async (db) => {
             }
 
             const candles = await bithumb.fetchOHLCV(symbol, timeframe);
-            const parsedCandles = candles.map(
+
+            const parsedCandles = candles.filter(c => {
+                    const validCandle = checkCandleStartTime(c[0], timeframe);
+                    if (!validCandle) {
+                        console.warn(`${timeframe} invalid timestamp candle:`, new Date(c[0]), c)
+                    }
+                    return validCandle;
+                }
+            ).map(
                 ([tms, open, high, low, close, volume], idx) => {
                     let start;
+                    const date = new Date(tms);
+
                     if (timeframe === '1d') {
                         // 1m 캔들은 데이터 조회 시 가장 최근 데이터 시간과 캔들 시간이 일치하지만
                         // 나머지 캔들은 일치하지 않는다. 최근 데이터의 시간을 통해 캔들의 시작 시간을 유추해야 한다.
-                        const date = new Date(tms);
                         if (candles.length - 1 === idx && date.getUTCHours() !== 15) {
                             const range = getCandleTimeRange(tms, timeframe)
                             start = range.start

@@ -1,5 +1,5 @@
 import {pro} from 'ccxt';
-import {sleep} from "../utils/utils.js";
+import {sleep} from "../utils/time.js";
 import {UpbitRealtimeAggregator} from "../aggregator/upbit_realtime.js";
 import * as Sentry from "@sentry/node";
 

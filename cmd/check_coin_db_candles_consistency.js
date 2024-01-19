@@ -12,9 +12,9 @@ import {Slack} from "../utils/slack.js";
 
     const params = {
         exchangeName: 'bithumb',
-        units: ['3m'],
-        symbols: 'all',
-        checkCount: 120,
+        units: ['1m', '3m', '5m', '10m', '30m', '1h'],
+        symbols: ['BTC/KRW', 'API3/KRW'],
+        checkCount: 1000,
         isLogDiffCandlesToFile: true,
         isLogSummaryToFile: true,
         isLogSummaryToSlack: true,

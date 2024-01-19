@@ -47,3 +47,21 @@ export const getCandleTimeRange = (tms, interval, timezone = 'UTC') => {
 
     return { start , end };
 }
+
+export const checkCandleStartTime = (tms, interval) => {
+    const d = new Date(tms)
+    d.setMilliseconds(0)
+    d.setUTCSeconds(0)
+
+    const candleInfo = CANDLES[interval];
+
+    if (candleInfo.isRegular) {
+        return d.getTime() % candleInfo.ms === 0
+    } else if (interval === '1d') {
+        return d.getUTCHours() === 0 && d.getUTCMinutes() === 0
+    } else if (interval === '1w') {
+        return d.getUTCDay() === 1 && d.getUTCHours() === 0 && d.getUTCMinutes() === 0
+    } else {
+        throw new Error('Not implement')
+    }
+}

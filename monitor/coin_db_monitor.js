@@ -1,5 +1,5 @@
 import {Bithumb} from "../exchange/bithumb.js";
-import {sleep} from "../utils/utils.js";
+import {checkCandleStartTime, sleep} from "../utils/time.js";
 import {Upbit} from "../exchange/upbit.js";
 import {writeJsonFile} from "../utils/file.js";
 
@@ -114,7 +114,9 @@ export class CoinDBMonitor {
                 )
 
                 let exchangeCandles = await fetchOHLCVFunction(symbol, unit, 0, checkCount);
-                exchangeCandles = exchangeCandles.map(([timestamp, open, high, low, close, volume]) => {
+                exchangeCandles = exchangeCandles.filter(ec => {
+                    return checkCandleStartTime(ec[0], unit)
+                }).map(([timestamp, open, high, low, close, volume]) => {
                     return {timestamp, open, high, low, close, volume}
                 }).sort((c1, c2) => c2.timestamp - c1.timestamp).slice(1); // 봉마감되지 않는 캔들 제외
 
