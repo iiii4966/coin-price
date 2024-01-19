@@ -181,8 +181,8 @@ export class CoinDBMonitor {
         }
 
         const onlyDiffSummary = [];
-        Object.entries(summaries).map(([symbol, summaries])=> {
-            onlyDiffSummary.push(...summaries.filter(s => s.diffCount > 0));
+        Object.entries(summaries).map(([_, summaries])=> {
+            onlyDiffSummary.push(...summaries.filter(s => s.diffCount > 0 || s.createdAtDiffCount > 0));
         })
 
         if (onlyDiffSummary.length > 0 && isLogSummaryToFile) {

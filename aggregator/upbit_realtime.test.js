@@ -121,9 +121,6 @@ test('test upbit AQT/KRW realtime aggregate', () => {
     }
 
     expect(candle.start).toBe(result.timestamp);
-    // expect(candle.firstTradeTms).toBe(1705287121690);
-    // expect(candle.lastTradeTms).toBe(1705287178843);
-    // expect(candle.lastSequentialId).toBe('17052871788430002');
     expect(candle.open).toBe(result.open);
     expect(candle.high).toBe(result.high);
     expect(candle.low).toBe(result.low);
