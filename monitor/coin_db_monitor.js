@@ -181,7 +181,7 @@ export class CoinDBMonitor {
         }
 
         const onlyDiffSummary = [];
-        Object.entries(summaries).map(([_, summaries])=> {
+        Object.entries(summaries).forEach(([_, summaries])=> {
             onlyDiffSummary.push(...summaries.filter(s => s.diffCount > 0 || s.createdAtDiffCount > 0));
         })
 
