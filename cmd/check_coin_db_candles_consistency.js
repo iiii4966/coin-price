@@ -11,9 +11,9 @@ import {Slack} from "../utils/slack.js";
     const monitor = new CoinDBMonitor({coinDB: db, slack})
 
     const params = {
-        exchangeName: 'upbit',
-        units: ['1m', '3m', '5m', '15m', '30m', '1h', '4h', '1d', '1w'],
-        symbols: ['BTC/KRW', 'BTT/KRW'],
+        exchangeName: 'bithumb',
+        units: ['1m', '3m', '5m', '10m', '30m', '1h'],
+        symbols: ['BTC/KRW'],
         checkCount: 200,
         isLogDiffCandlesToFile: true,
         isLogSummaryToFile: true,
