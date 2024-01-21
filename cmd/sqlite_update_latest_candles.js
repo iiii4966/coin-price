@@ -24,44 +24,40 @@ const bootstrap = async () => {
         sqliteDB: sqliteDB
     });
 
-    let cronTime = '*/5 * * * * *'
-    if (config.NODE_ENV === 'dev') {
-        cronTime = '*/8 * * * * *'
-    }
-
     const job = CronJob.from({
-        cronTime: cronTime,
+        cronTime: '*/1 * * * * *',
         onTick: async () => {
+            const now = Date.now()
+            if ((Math.floor(now / 1000) % 15) - 7 !== 0) { // 7, 22, 37, 52 초에 한번씩 캔들 insert
+                return
+            }
+
             try {
                 console.log('\nStart sqlite update latest candles')
-                const now = new Date().getTime();
 
                 await Promise.all([
                     bithumbExporter.updateLatestCandles(),
                     upbitExporter.updateLatestCandles()
                 ])
+                console.log('Complete sqlite update latest candles')
 
-                // 1분에 한번, sqlite db 캔들 2000개 이상 삭제
-                if ((Math.floor(now / 1000) % 60) === 0) {
-                    console.log('\nStart sqlite delete old candles')
-                    for (const {ms, sqlite: {unit}} of Object.values(CANDLES)) {
-                        if (unit === 'Week') {
-                            continue;
-                        }
-
-                        let candleDurationCount = 2000;
-                        if (unit === 'Min' || unit === 'Min3') {
-                            candleDurationCount = 4000;
-                        }
-                        const oldestTms = now - (ms * candleDurationCount)
-                        const deleteCount = sqliteDB.deleteOldCandles(unit, oldestTms)
-                        console.log(`sqlite db ${unit.toLowerCase()} candles deleted: ${deleteCount}`);
-                    }
-
-                    console.log('Complete sqlite delete old candles\n')
+                if (new Date(now).getUTCSeconds() !== 52) {
+                    return
                 }
 
-                console.log('Complete sqlite update latest candles')
+                // 1분에 한번, 오래된 캔들 삭제
+                console.log('\nStart sqlite delete old candles')
+                for (const {ms, sqlite: {unit}} of Object.values(CANDLES)) {
+                    if (unit === 'Week') {
+                        continue;
+                    }
+
+                    let candleDurationCount = 2000;
+                    const oldestTms = now - (ms * candleDurationCount)
+                    const deleteCount = sqliteDB.deleteOldCandles(unit, oldestTms)
+                    console.log(`sqlite db ${unit.toLowerCase()} candles deleted: ${deleteCount}`);
+                }
+                console.log('Complete sqlite delete old candles\n')
             } catch (e) {
                 Sentry.captureException(e)
             }
