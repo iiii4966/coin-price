@@ -50,8 +50,8 @@ const bootstrap = async () => {
                         }
 
                         let candleDurationCount = 2000;
-                        if (unit === 'Min') {
-                            candleDurationCount = 3000;
+                        if (unit === 'Min' || unit === 'Min3') {
+                            candleDurationCount = 4000;
                         }
                         const oldestTms = now - (ms * candleDurationCount)
                         const deleteCount = sqliteDB.deleteOldCandles(unit, oldestTms)
