@@ -24,8 +24,13 @@ const bootstrap = async () => {
         sqliteDB: sqliteDB
     });
 
+    let cronTime = '*/5 * * * * *'
+    if (config.NODE_ENV === 'dev') {
+        cronTime = '*/8 * * * * *'
+    }
+
     const job = CronJob.from({
-        cronTime: '*/5 * * * * *',
+        cronTime: cronTime,
         onTick: async () => {
             try {
                 console.log('\nStart sqlite update latest candles')
@@ -37,12 +42,16 @@ const bootstrap = async () => {
                 ])
 
                 // 1분에 한번, sqlite db 캔들 2000개 이상 삭제
-                const candleDurationCount = 2000;
                 if ((Math.floor(now / 1000) % 60) === 0) {
                     console.log('\nStart sqlite delete old candles')
                     for (const {ms, sqlite: {unit}} of Object.values(CANDLES)) {
                         if (unit === 'Week') {
                             continue;
+                        }
+
+                        let candleDurationCount = 2000;
+                        if (unit === 'Min') {
+                            candleDurationCount = 3000;
                         }
                         const oldestTms = now - (ms * candleDurationCount)
                         const deleteCount = sqliteDB.deleteOldCandles(unit, oldestTms)
