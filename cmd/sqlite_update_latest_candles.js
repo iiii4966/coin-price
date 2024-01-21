@@ -28,6 +28,7 @@ const bootstrap = async () => {
         cronTime: '*/5 * * * * *',
         onTick: async () => {
             try {
+                console.log('\nStart sqlite update latest candles')
                 const now = new Date().getTime();
 
                 await Promise.all([
@@ -35,19 +36,26 @@ const bootstrap = async () => {
                     upbitExporter.updateLatestCandles()
                 ])
 
-                // sqlite db 캔들 2000개 이상 삭제
+                // 1분에 한번, sqlite db 캔들 2000개 이상 삭제
                 const candleDurationCount = 2000;
                 if ((Math.floor(now / 1000) % 60) === 0) {
+                    console.log('\nStart sqlite delete old candles')
                     for (const {ms, sqlite: {unit}} of Object.values(CANDLES)) {
+                        if (unit === 'Week') {
+                            continue;
+                        }
                         const oldestTms = now - (ms * candleDurationCount)
                         const deleteCount = sqliteDB.deleteOldCandles(unit, oldestTms)
                         console.log(`sqlite db ${unit.toLowerCase()} candles deleted: ${deleteCount}`);
                     }
+
+                    console.log('Complete sqlite delete old candles\n')
                 }
+
+                console.log('Complete sqlite update latest candles')
             } catch (e) {
                 Sentry.captureException(e)
             }
-
         },
     });
 
