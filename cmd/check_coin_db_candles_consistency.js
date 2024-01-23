@@ -13,8 +13,9 @@ import {Slack} from "../utils/slack.js";
     const params = {
         exchangeName: 'upbit',
         units: ['1m', '3m', '5m', '10m', '15m', '30m', '1h', '4h', '1d', '1w'],
-        symbols: 'all',
-        checkCount: 500,
+        // units: ['1m', '3m', '5m', '10m', '30m', '1h'],
+        symbols: ['BTC/KRW', '1INCH/KRW'],
+        checkCount: 1000,
         isLogDiffCandlesToFile: true,
         isLogSummaryToFile: true,
         isLogSummaryToSlack: true,
