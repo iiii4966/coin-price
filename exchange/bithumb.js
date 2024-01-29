@@ -205,7 +205,7 @@ export class Bithumb extends bithumbRest {
 
     onClose(client, error) {
         const url = client.url;
-        console.log(`Closed: ${url} | error: ${error}`)
+        console.log(`Closed: ${url} | error:`, error)
 
         if (this.clients[url]) {
             delete this.clients[url];
