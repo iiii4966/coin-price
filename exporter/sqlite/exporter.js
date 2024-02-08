@@ -19,8 +19,10 @@ export class CoinMeerkatSqliteExporter {
         return {market: this.exchange.toUpperCase(), tms: tms.getTime(), code, op, hp, lp, cp, tv}
     }
 
-    async loadCandleHistory(limit = 2000){
-        const symbols = await this.coinDB.fetchSymbols(this.exchange);
+    async loadCandleHistory(limit = 2000, symbols = []){
+        if (symbols.length === 0) {
+            symbols = await this.coinDB.fetchSymbols(this.exchange);
+        }
 
         const bulkInsertStatements = this.sqliteDB.prepareCandleBulkInsert()
 

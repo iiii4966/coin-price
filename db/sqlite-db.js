@@ -11,6 +11,9 @@ export class SqliteDB {
         this.candleUnits = options.candleUnits ?? Object.values(CANDLES).map(c => c.sqlite.unit);
         this.db = new Database(this.dbName);
         this.db.exec('PRAGMA journal_mode = WAL');
+        this.db.exec('PRAGMA synchronous = normal;');
+        this.db.exec('PRAGMA temp_store = memory;');
+        this.db.exec('PRAGMA mmap_size = 1073741824;');
         this.db.exec('PRAGMA journal_size_limit = 1073741824');
     }
 
