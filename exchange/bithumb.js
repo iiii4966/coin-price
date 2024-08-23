@@ -3,7 +3,6 @@ import {checkCandleStartTime, getCandleTimeRange, sleep} from "../utils/time.js"
 import {CandleRealtimeAggregator} from "../aggregator/realtime.js";
 import {CANDLES, utcHourMs} from "../utils/constant.js";
 import {RegularTimeCandleBatchAggregator, WeekCandleBatchAggregator} from "../aggregator/batch.js";
-import * as Sentry from "@sentry/node";
 
 export class Bithumb extends bithumbRest {
     marketSymbols = [];
@@ -193,7 +192,6 @@ export class Bithumb extends bithumbRest {
 
         if (error) {
             console.error('Error:', error);
-            Sentry.captureException(error)
         }
 
         const ws = this.wsClient(url);

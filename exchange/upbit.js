@@ -1,7 +1,6 @@
 import {pro} from 'ccxt';
 import {sleep} from "../utils/time.js";
 import {UpbitRealtimeAggregator} from "../aggregator/upbit_realtime.js";
-import * as Sentry from "@sentry/node";
 
 export class Upbit extends pro.upbit {
     marketSymbols = [];
@@ -199,7 +198,6 @@ export class Upbit extends pro.upbit {
 
         if (error) {
             console.error('Error:', {error});
-            Sentry.captureException(error)
         }
 
         const ws = this.wsClient(url);
